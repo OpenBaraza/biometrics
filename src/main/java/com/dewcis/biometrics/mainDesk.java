@@ -53,7 +53,8 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	Logger log = Logger.getLogger(mainDesk.class.getName());
 
 	Connection db = null;
-	
+	String mySql = "";
+
 	Enrolment enrolment;
 	
 	Vector<Vector<String>> rowData;
@@ -177,7 +178,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 
 	
 	public void getStudents() {
-		String mySql = "SELECT s.studentid, s.studentname, s.telno, s.email, e.entity_id "
+		mySql = "SELECT s.studentid, s.studentname, s.telno, s.email, e.entity_id "
 				+ "FROM students s INNER JOIN entitys e ON s.studentid = e.user_name "
 				+ "WHERE s.telno is not null AND s.email is not null LIMIT 200";
 
@@ -463,7 +464,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		if(filterList.getSelectedIndex() < 2) wheresql += " '%" + filterData.getText() + "%'";
 		else wheresql += " '" + filterData.getText() + "'";
 		
-		 String mySql = "SELECT s.studentid, s.studentname, s.telno, s.email, e.entity_id "
+		mySql = "SELECT s.studentid, s.studentname, s.telno, s.email, e.entity_id "
 			+ "FROM students s INNER JOIN entitys e ON s.studentid = e.user_name "
 			+ "WHERE (s.telno is not null) AND (s.email is not null) AND "
 			+ wheresql
@@ -471,6 +472,10 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 
 System.out.println("BASE 2010 " + mySql);
 
+		refresh();
+	}
+
+	public void refresh() {
 		enrolment.getStudents(db, mySql, fields);
 		tNonRegModel.refresh(enrolment.getUnRegistred());
 		tableNon.repaint();
