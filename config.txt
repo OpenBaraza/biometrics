@@ -1,0 +1,16 @@
+
+baseUrl=http://192.168.0.128:8795/v2
+
+domain=192.168.0.128
+
+apiName=admin
+
+user_password=admin747
+
+user_name=admin
+
+access_group_id=5
+access_group_name=Main Entrance
+
+user_group_id=1030
+user_group_name=Entry Office users
