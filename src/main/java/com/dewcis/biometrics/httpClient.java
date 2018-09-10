@@ -32,9 +32,11 @@ import org.json.JSONObject;
 public class httpClient {
 	Logger log = Logger.getLogger(httpClient.class.getName());
 
-	base_url base = new base_url();
-        Map<String, String> mapResults = base.base_url();
-	String domain = mapResults.get("domain");
+	String domain = "";
+	
+	public httpClient(String domain) {
+		this.domain = domain;
+	}
 
 	public String getCookies(String url, String sData) {
 		String content = "";

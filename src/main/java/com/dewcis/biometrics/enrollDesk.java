@@ -44,7 +44,9 @@ public class enrollDesk implements ActionListener {
 	Logger log = Logger.getLogger(enrollDesk.class.getName());
 
 	Connection db = null;
-	Device dev = new Device();
+	
+	Configs cfgs = null;
+	Device dev = null;
 	
 	JFrame eFrame;
 	JDialog eDialog;
@@ -69,14 +71,13 @@ public class enrollDesk implements ActionListener {
 	JSONObject jfingerItem2 = new JSONObject();
 	
 	base64Decoder myimage = new base64Decoder(); //fingerprint location and decoding
-	ImageIcon fImage1 = new ImageIcon(""+myimage.results+"/finger print images/fTemplate1.PNG");
+	ImageIcon fImage1 = new ImageIcon("" + myimage.results + "/finger print images/fTemplate1.PNG");
 	Image fimage1 = fImage1.getImage();
 	Image fNewimg1 = fimage1.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
-	
 
-
-	public enrollDesk(Vector<String> titles, Vector<String> rowData, String sessionId) {
-		this.sessionId = sessionId;
+	public enrollDesk(Vector<String> titles, Vector<String> rowData, Configs cfgs, Device dev) {
+		this.cfgs = cfgs;
+		this.dev = dev;
 
 		mainPanel = new JPanel(null);
 		
@@ -227,8 +228,8 @@ public class enrollDesk implements ActionListener {
 		}
 
 		if(ev.getActionCommand().equals("Register")) {
-			rgResults = dev.addUser(jStudent,sessionId);
-                        msg.get(0).setText(rgResults);
+			rgResults = dev.addUser(jStudent);
+			msg.get(0).setText(rgResults);
 			JSONObject jObject = new JSONObject(rgResults);
 			System.out.println("BASE REGISTER : " + rgResults);
 
@@ -243,7 +244,7 @@ public class enrollDesk implements ActionListener {
 
 			fImage1 = new ImageIcon(fNewimg1);
 
-			String finger1Details = dev.scan(tfDevice.getText(),sessionId);
+			String finger1Details = dev.scan(tfDevice.getText());
 			msg.get(0).setText(finger1Details);
 
 			if(finger1Details.contains("Scan quality is low.")){
@@ -274,7 +275,7 @@ public class enrollDesk implements ActionListener {
 			    jfingerItem.put("template1", template1);
 			    
 			    base64Decoder imgFingerPrint = new base64Decoder();
-			    imgFingerPrint.decode(jFingerScan.getString("template_image0"),jStudent.getString("user_id")+"T1");
+			    imgFingerPrint.decode(jFingerScan.getString("template_image0"), jStudent.getString("user_id") + "T1");
 			    
 			   	ImageIcon imageF1 = new ImageIcon(""+imgFingerPrint.results+"/finger print images/"+jStudent.getString("user_id")+"T1"+".PNG");
 			    Image imgF1 = imageF1.getImage();
@@ -292,7 +293,7 @@ public class enrollDesk implements ActionListener {
 
 	        fImage1 = new ImageIcon(fNewimg1);
 	        
-	        String finger2Details = dev.scan(tfDevice.getText(),sessionId);
+	        String finger2Details = dev.scan(tfDevice.getText());
 	        msg.get(0).setText(finger2Details);
 	        
 	        if(finger2Details.contains("Scan quality is low.")){
@@ -345,7 +346,7 @@ public class enrollDesk implements ActionListener {
 				jarrayFinger.put(jfingerItem2);
 				jfinger.put("fingerprint_template_list",jarrayFinger);
 				System.out.println("BASE 2010 Finger Prints : " + jfinger.toString());
-				String enResults = dev.enroll(jStudent.getString("user_id"),sessionId,jfinger);
+				String enResults = dev.enroll(jStudent.getString("user_id"), jfinger);
 				msg.get(0).setText(enResults);
 				//Enabling buttons and disabling
 				btns.get(3).setEnabled(false);
@@ -419,55 +420,49 @@ public class enrollDesk implements ActionListener {
 	}
 
 	public void addJstudent(Vector<String> rowData) {
-
-                base_url base = new base_url();
-                Map<String, String> mapResults = base.base_url();
-                
-                jStudent = new JSONObject();
-                
-                
-                jStudent.put("login_id", rowData.get(0));
-                jStudent.put("name", rowData.get(1));
-                jStudent.put("phone_number", rowData.get(3));
-                jStudent.put("email", rowData.get(4));
-                jStudent.put("user_id", rowData.get(2));
-                jStudent.put("password", "password");
-                jStudent.put("pin", "");
-                jStudent.put("security_level", "");
-                jStudent.put("start_datetime", "2017-01-13T00:00:00.000Z");
-                jStudent.put("expiry_datetime", "2030-01-13T23:59:59.000Z");
-                jStudent.put("status", "AC");
-                
-                JSONArray jAccessGroups = new JSONArray();
-                JSONObject jAccessGroup = new JSONObject();
-                jAccessGroup.put("id", mapResults.get("access_group_id"));
-                jAccessGroup.put("included_by_user_group", "Yes");
-                jAccessGroup.put("name", mapResults.get("access_group_name"));
-                jAccessGroups.put(jAccessGroup);
-                
-                jStudent.put("access_groups", jAccessGroups);
-                
-                JSONObject jUserGroup = new JSONObject();
-                jUserGroup.put("id", mapResults.get("user_group_id"));
-                jUserGroup.put("name", mapResults.get("user_group_name"));
-                
-                jStudent.put("user_group", jUserGroup);
-                
-                JSONObject jpermission = new JSONObject();
-                jpermission.put("id", "255");
-                jpermission.put("name", "User");
-                
-                
-                JSONArray jpermissions = new JSONArray();
-                JSONObject jpermissionls = new JSONObject();
-                jpermissionls.put("allowed_group_id_list", "[1]");
-                jpermissionls.put("module", "CARD");
-                jpermissionls.put("read", true);
-                jpermissionls.put("write", true);
-                jpermissions.put(jpermissionls);
-                
-                jpermission.put("permissions", jpermissions);
-                jStudent.put("permission", jpermission);
-        
+		jStudent = new JSONObject();
+		
+		jStudent.put("login_id", rowData.get(0));
+		jStudent.put("name", rowData.get(1));
+		jStudent.put("phone_number", rowData.get(3));
+		jStudent.put("email", rowData.get(4));
+		jStudent.put("user_id", rowData.get(2));
+		jStudent.put("password", "password");
+		jStudent.put("pin", "");
+		jStudent.put("security_level", "");
+		jStudent.put("start_datetime", "2017-01-13T00:00:00.000Z");
+		jStudent.put("expiry_datetime", "2030-01-13T23:59:59.000Z");
+		jStudent.put("status", "AC");
+		
+		JSONArray jAccessGroups = new JSONArray();
+		JSONObject jAccessGroup = new JSONObject();
+		jAccessGroup.put("id", cfgs.getConfig("access_group_id"));
+		jAccessGroup.put("included_by_user_group", "Yes");
+		jAccessGroup.put("name", cfgs.getConfig("access_group_name"));
+		jAccessGroups.put(jAccessGroup);
+		
+		jStudent.put("access_groups", jAccessGroups);
+		
+		JSONObject jUserGroup = new JSONObject();
+		jUserGroup.put("id", cfgs.getConfig("user_group_id"));
+		jUserGroup.put("name", cfgs.getConfig("user_group_name"));
+		
+		jStudent.put("user_group", jUserGroup);
+		
+		JSONObject jpermission = new JSONObject();
+		jpermission.put("id", "255");
+		jpermission.put("name", "User");
+		
+		
+		JSONArray jpermissions = new JSONArray();
+		JSONObject jpermissionls = new JSONObject();
+		jpermissionls.put("allowed_group_id_list", "[1]");
+		jpermissionls.put("module", "CARD");
+		jpermissionls.put("read", true);
+		jpermissionls.put("write", true);
+		jpermissions.put(jpermissionls);
+		
+		jpermission.put("permissions", jpermissions);
+		jStudent.put("permission", jpermission);        
 	}
 }

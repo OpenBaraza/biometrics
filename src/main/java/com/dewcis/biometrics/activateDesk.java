@@ -34,7 +34,7 @@ public class activateDesk implements ActionListener {
 	Logger log = Logger.getLogger(enrollDesk.class.getName());
 
 	Connection db = null;
-	Device dev = new Device();
+	Device dev = null;
 	
 	JFrame eFrame;
 	JDialog eDialog;
@@ -44,13 +44,11 @@ public class activateDesk implements ActionListener {
 	List<JLabel> lbls;
 	List<JLabel> lblPhoto;
 	List<JDesktopPane> dsk;
-
-	String sessionId = "";
 	
 	base64Decoder myImage = new base64Decoder();
 
-	public activateDesk(Vector<String> titles,String student, String sessionId) {
-		this.sessionId = sessionId;
+	public activateDesk(Vector<String> titles,String student, Device dev) {
+		this.dev = dev;
 		
 		jStudent = new JSONObject(student);
 
@@ -175,13 +173,12 @@ public class activateDesk implements ActionListener {
 		}
 
 		if(ev.getActionCommand().equals("Activate")) {
-            jStudent.remove("status");
-            jStudent.put("status", "AC");
-            dev.acinUser(jStudent.getString("user_id"),sessionId,jStudent);
-            btns.get(0).setEnabled(false);
-            
-        }
-		
+			jStudent.remove("status");
+			jStudent.put("status", "AC");
+			dev.acinUser(jStudent.getString("user_id"), jStudent);
+			btns.get(0).setEnabled(false);
+			
+		}		
 	}
     
 }

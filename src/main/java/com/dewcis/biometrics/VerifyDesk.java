@@ -1,14 +1,11 @@
 package com.dewcis.biometrics;
 
-import java.sql.Connection;
-
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.logging.Logger;
-
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -33,9 +30,6 @@ import javax.swing.border.LineBorder;
 public class VerifyDesk implements ActionListener {
 	Logger log = Logger.getLogger(enrollDesk.class.getName());
 
-	Connection db = null;
-	Device dev = new Device();
-	
 	JFrame eFrame;
 	JDialog eDialog;
 	JSONObject jStudent;
@@ -44,12 +38,10 @@ public class VerifyDesk implements ActionListener {
 	List<JLabel> lbls;
 	List<JLabel> lblPhoto;
 	List<JDesktopPane> dsk;
-
 	
 	base64Decoder myImage = new base64Decoder();
 
 	public VerifyDesk(String student) {
-
 		jStudent = new JSONObject(student);
 
 		mainPanel = new JPanel(null);

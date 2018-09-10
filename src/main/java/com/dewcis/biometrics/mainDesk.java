@@ -55,7 +55,9 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	Connection db = null;
 	String mySql = "";
 
-	Enrolment enrolment;
+	Enrolment enrolment = null;
+	Configs cfgs = null;
+	Device dev = null;
 	
 	Vector<Vector<String>> rowData;
 	Vector<String> columnNames;
@@ -78,7 +80,6 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	tableModel tModel, tNonRegModel, tINModel;
 	DefaultTableModel logModel;
 
-	String sessionId = null;
 	String[] eventCodeName,logListcode;
 
 	public mainDesk(Connection db) {
@@ -110,18 +111,10 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		tableLog = new JTable(logModel);
 		JScrollPane scrollPanereg = new JScrollPane(tableLog);
 		logPanel.add(scrollPanereg, BorderLayout.CENTER);
-
+		
 		// Getting details from the config.txt from class base_url
-		base_url base = new base_url();
-		Map<String, String> map = base.base_url();
-
-		String baseUrl 		= map.get("baseUrl");
-		String apiName		= map.get("apiName"); 
-		String userId 		= map.get("user_name"); 
-		String password		= map.get("user_password");
-		// Login to device
-		Device log = new Device();
-		sessionId = log.login(apiName, userId, password,baseUrl);
+		cfgs = new Configs(db);
+		dev = new Device(cfgs.getConfigs(), null);
 
 		// Add students on table
 		getStudents();
@@ -148,7 +141,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		addSearch("Device ID ", "541612052", 10, 20, 120, 20, 300);
 		addSearch("Start Date ", "2018-08-01", 10, 50, 120, 20, 300);
 		addSearch("End Date ", "2018-08-31",10, 80, 120, 20, 300);
-		addCombox("Event names ", eventCodeName,10, 110, 120, 20, 300);
+		addCombox("Event names ", eventCodeName, 10, 110, 120, 20, 300);
 
 		// Butons panel
 		buttonPanel = new JPanel(null);
@@ -160,7 +153,6 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		addButton("Search", 450, 20, 75, 25, true);
 
 		tabbedPane.addTab("Verify User / Search logs", verifyPanel);
-
 		super.add(tabbedPane, BorderLayout.CENTER);
 		
 		filterData = new JTextField(25);
@@ -192,7 +184,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
         
         // Get 
 		enrolment = new Enrolment();
-		enrolment.usersList(sessionId);
+		enrolment.usersList(dev);
 		enrolment.getStudents(db, mySql, fields);
         
 		//Creating table for Non Registered students.
@@ -264,8 +256,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	public void getLogs() {
 
         //get codlist referance logs name and code.
-		Device dev = new Device();
-		String referencResult = dev.eventsType(sessionId);
+		String referencResult = dev.eventsType();
 
 		JSONObject jsonObject = new JSONObject(referencResult);
 		JSONArray tsmresponse = (JSONArray) jsonObject.get("records");
@@ -276,8 +267,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		JSONArray jEventcode = new JSONArray();
 		list.add("None");
 		list1.add("0000");
-		for(int i=0; i<tsmresponse.length(); i++){
-
+		for(int i = 0; i < tsmresponse.length(); i++){
 			list.add(tsmresponse.getJSONObject(i).getString("description"));
 			list1.add(""+tsmresponse.getJSONObject(i).getInt("code")+"");
 			jEventcode.put(tsmresponse.getJSONObject(i).getInt("code"));
@@ -288,7 +278,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 
         
         //get available device ID list
-		String avalableDevice = dev.deviceList(sessionId);
+		String avalableDevice = dev.deviceList();
 
 		JSONObject jAvailable = new JSONObject(avalableDevice);
 		JSONArray aAvailable = (JSONArray) jAvailable.get("records");
@@ -297,8 +287,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		JSONArray jDevicelist = new JSONArray();
 
 		int j = 01;
-		for(int i=0; i<aAvailable.length(); i++){
-
+		for(int i = 0; i < aAvailable.length(); i++){
 			jDevicecomp.put("device_id", aAvailable.getJSONObject(i).getInt("id"));
 			jDevicecomp.put("end_datetime", YearMonth.now()+"-"+Month.from(LocalDate.now()).length(true)+"T23:59:00.00Z");
 			jDevicecomp.put("start_datetime", YearMonth.now()+"-0"+j+"T00:00:00.00Z");
@@ -313,14 +302,14 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		jEventlog.put("offset", 0);
 		
 		//adding the log results to the logTable in the logs panel
-		String eventLogView = dev.mothlyLogEvent(jEventlog,sessionId);
+		String eventLogView = dev.mothlyLogEvent(jEventlog);
 
 		JSONObject jLog = new JSONObject(eventLogView);
 		JSONArray aLog = (JSONArray) jLog.get("records");
 
 		rowData = new Vector<Vector<String>>();
 
-		for(int i=0; i<aLog.length(); i++){
+		for(int i = 0; i < aLog.length(); i++){
 			Vector<String> row = new Vector<String>();  
 			row.add(""+aLog.getJSONObject(i).getString("datetime")+"");
 			row.add(""+aLog.getJSONObject(i).getJSONObject("device").getInt("id")+"");
@@ -339,10 +328,8 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 			
 			logModel.setDataVector(rowData, columnNames);
 			logModel.fireTableDataChanged();
-        
        	}
 	}
-	
 	
 	public void mousePressed(MouseEvent ev) {}
 	public void mouseReleased(MouseEvent ev) {}
@@ -358,18 +345,15 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 			int bRow = tableNon.getSelectedRow();
 			if ((bRow != -1) && (ev.getClickCount() == 2)) {
 				int index = tableNon.convertRowIndexToModel(bRow);
-				enrollDesk eDesk = new enrollDesk(tNonRegModel.getTitles(), tNonRegModel.getRowValues(index), sessionId);
+				enrollDesk eDesk = new enrollDesk(tNonRegModel.getTitles(), tNonRegModel.getRowValues(index), cfgs, dev);
 			}
-			
 		} else if(selectedIndex == 1) {
 			// Selected Row in the Registerd users in the second JTabbedPane called "Registred".
 			System.out.println("selected tab Index is: " + selectedIndex);
 			int aRow = tableReg.getSelectedRow();
 			if ((aRow != -1) && (ev.getClickCount() == 2)) {
 				int index = tableReg.convertRowIndexToModel(aRow);
-				registerDesk rDesk = new registerDesk(tModel.getTitles(), tModel.getRowValues(index), sessionId);
-				// frame.revalidate();
-				// frame.repaint();
+				registerDesk rDesk = new registerDesk(tModel.getTitles(), tModel.getRowValues(index), dev);
 			}
 		} else if(selectedIndex == 2) {
 			// Selected Row in the Active/Inactive users in the third JTabbedPane called "Activate / Inactivate Users ".
@@ -378,11 +362,11 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 			if ((cRow != -1) && (ev.getClickCount() == 2)) {
 				int index = tableIN.convertRowIndexToModel(cRow);
 				Vector<String> rowData = tINModel.getRowValues(index);
-                                String user_id = rowData.get(2);
-				Device dev = new Device();
-				String userResults = dev.userDetails(user_id,sessionId);
+				String user_id = rowData.get(2);
+				
+				String userResults = dev.userDetails(user_id);
 
-				activateDesk aDesk = new activateDesk(tINModel.getTitles(), userResults, sessionId);
+				activateDesk aDesk = new activateDesk(tINModel.getTitles(), userResults, dev);
 			}
 		}
 	}
@@ -409,8 +393,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 			jSearchEvent.put("limit", 0);
 			jSearchEvent.put("offset", 0);
 
-			Device dev = new Device();
-			String eventlogView = dev.searchLogEvent(jSearchEvent,sessionId);
+			String eventlogView = dev.searchLogEvent(jSearchEvent);
 
 			JSONObject jsonObject = new JSONObject(eventlogView);
 			JSONArray tsmresponse = (JSONArray) jsonObject.get("records");
@@ -419,7 +402,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
                 for(int i=0; i<tsmresponse.length(); i++){
                     userID = Integer.toString(tsmresponse.getJSONObject(i).getJSONObject("user").getInt("user_id"));
                 }
-                String userResults = dev.userDetails(userID,sessionId);
+                String userResults = dev.userDetails(userID);
                 VerifyDesk ver = new VerifyDesk(userResults);
                 
             }else{
@@ -428,8 +411,8 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		} else if(ev.getActionCommand().equals("Search")) {
 			String eventLOG=null;
 			int eventLogName = cmbs.get(0).getSelectedIndex();
-			if(0!=eventLogName)
-			{   
+			
+			if(0 != eventLogName) {   
 				eventLOG = logListcode[eventLogName];
 				JSONArray jCode = new JSONArray();
 				jCode.put(eventLOG);
@@ -447,10 +430,9 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 				jSearchEvent.put("limit", 0);
 				jSearchEvent.put("offset", 0);
 
-				Device dev = new Device();
-				String eventlogView = dev.searchLogEvent(jSearchEvent,sessionId);
+				String eventlogView = dev.searchLogEvent(jSearchEvent);
 				searchLogDesk srch = new searchLogDesk(eventlogView);
-			}else if (0==eventLogName) {
+			} else if (0==eventLogName) {
 				JOptionPane.showMessageDialog(null, "You can't Search For None Log Events");
 			}
 		} else if(ev.getActionCommand().equals("Filter")) {
@@ -469,7 +451,6 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 			+ "WHERE (s.telno is not null) AND (s.email is not null) AND "
 			+ wheresql
 			+ " LIMIT 200";
-
 System.out.println("BASE 2010 " + mySql);
 
 		refresh();

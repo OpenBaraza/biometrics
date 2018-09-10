@@ -86,7 +86,7 @@ public class loginDesk implements ActionListener {
 			pwPassword.setText("");
 		} else if("Login".equals(aKey)) {
 			String myPassword = new String(pwPassword.getPassword());
-			connectDB("jdbc:postgresql://localhost/ueab", tfUserName.getText(), myPassword);
+			connectDB("jdbc:postgresql://umisdb/ueab", tfUserName.getText(), myPassword);
 			
 			if(db == null) {
 				clearStatus.setText("Login error");

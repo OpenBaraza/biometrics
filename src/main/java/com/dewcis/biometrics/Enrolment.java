@@ -8,7 +8,6 @@ package com.dewcis.biometrics;
 
 import java.net.URISyntaxException;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import java.util.Vector;
@@ -38,14 +37,13 @@ public class Enrolment {
 		students = new HashMap<String, Vector<String>>();
 	}
 
-	public void usersList(String sessionId){
+	public void usersList(Device dev){
 		enrolledActive.clear();
 		enrolledInActive.clear();
-		
-		try {
-			Device dev = new Device();
-			String results = dev.userslist(sessionId);
 
+		String results = dev.usersList();
+
+		if(results != null) {
 			JSONObject jResults = new JSONObject(results);
 			JSONArray jresponse = (JSONArray) jResults.get("records");
 
@@ -55,8 +53,6 @@ public class Enrolment {
 				else if (jresponse.getJSONObject(i).getString("status").equals("IN"))
 					enrolledInActive.add(jresponse.getJSONObject(i).getString("user_id"));
 			}
-		} catch (URISyntaxException ex) {
-			log.log(Level.SEVERE, null, ex);
 		}
 	}
 

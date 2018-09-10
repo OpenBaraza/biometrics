@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Vector;
 import java.util.logging.Logger;
 
-
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.BorderLayout;
@@ -42,7 +41,8 @@ public class registerDesk implements ActionListener {
 	Logger log = Logger.getLogger(enrollDesk.class.getName());
 
 	Connection db = null;
-	Device dev = new Device();
+	Device dev = null;
+	Map<String, String> cfgs = null;
 	
 	JFrame eFrame;
 	JDialog eDialog;
@@ -55,7 +55,6 @@ public class registerDesk implements ActionListener {
 	List<JLabel> lblPhoto;
 	List<JDesktopPane> dsk;
 
-	String sessionId = "";
 	String scan1Details = "";
 	String scan2Details = "";
 
@@ -67,8 +66,8 @@ public class registerDesk implements ActionListener {
 	base64Decoder myImage = new base64Decoder();
 	
 
-	public registerDesk(Vector<String> titles, Vector<String> rowData, String sessionId) {
-		this.sessionId = sessionId;
+	public registerDesk(Vector<String> titles, Vector<String> rowData, Device dev) {
+		this.dev = dev;
 
 		mainPanel = new JPanel(null);
 		
@@ -111,17 +110,17 @@ public class registerDesk implements ActionListener {
 		mainPanel.add(fpPanel);
 
 		ImageIcon image1 = new ImageIcon(""+myImage.results+"/finger print images/"+jStudent.getString("user_id")+"T1"+".PNG");
-        ImageIcon image2 = new ImageIcon(""+myImage.results+"/finger print images/"+jStudent.getString("user_id")+"T2"+".PNG");
+		ImageIcon image2 = new ImageIcon(""+myImage.results+"/finger print images/"+jStudent.getString("user_id")+"T2"+".PNG");
 		Image fimage1 = image1.getImage();
-        Image fimage2 = image2.getImage();
+		Image fimage2 = image2.getImage();
 		Image fnewimg1 = fimage1.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
-        Image fnewimg2 = fimage2.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
+		Image fnewimg2 = fimage2.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
 		image1 = new ImageIcon(fnewimg1);
-        image2 = new ImageIcon(fnewimg2);
+		image2 = new ImageIcon(fnewimg2);
 
 		addDevice("Device ID ", "541612052", 10, 20, 100, 20, 200);
-		addFinger(image1,10,80,180,200);
-		addFinger(image2,200,80,180,200);
+		addFinger(image1, 10, 80, 180, 200);
+		addFinger(image2, 200, 80, 180, 200);
 
 		// Camera panel
 		lblPhoto = new ArrayList<JLabel>();
@@ -141,13 +140,13 @@ public class registerDesk implements ActionListener {
 
 
 		// Status panel
-        msg = new ArrayList<JLabel>();
+		msg = new ArrayList<JLabel>();
 		statusPanel = new JPanel(null);
 		statusPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Status"));
 		statusPanel.setBounds(5, 580, 850, 70);
 		mainPanel.add(statusPanel);
-                
-        addMessage("Message", 10, 10, 120, 20, 600);
+
+		addMessage("Message", 10, 10, 120, 20, 600);
 		
 		// Load on main form
 		eFrame = new JFrame("Enroll");
@@ -235,12 +234,12 @@ public class registerDesk implements ActionListener {
 		}
 
 		if(ev.getActionCommand().equals("Inactivate")) {
-            jStudent.remove("status");
-            jStudent.put("status", "IN");
-            dev.acinUser(jStudent.getString("user_id"),sessionId,jStudent);
-            btns.get(6).setEnabled(false);
-            
-        }
+			jStudent.remove("status");
+			jStudent.put("status", "IN");
+			dev.acinUser(jStudent.getString("user_id"), jStudent);
+			btns.get(6).setEnabled(false);
+			
+		}
 
 		if(ev.getActionCommand().equals("Update")) {
             msg.get(0).setText("Update");
@@ -252,28 +251,21 @@ public class registerDesk implements ActionListener {
 		}
 
 		if(ev.getActionCommand().equals("Scan 1")) {
-
-			// fImage1 = new ImageIcon(fNewimg1);
-
-			String finger1Details = dev.scan(txfs.get(0).getText(),sessionId);
+			String finger1Details = dev.scan(txfs.get(0).getText());
             msg.get(0).setText(finger1Details);
                         
 			if(finger1Details.contains("Scan quality is low.")){
 			    System.out.println("Scan quality is low.");
-			    finger1Details=null;
-			    // lbls.get(0).setIcon(fImage1);
+			    finger1Details = null;
 			}else if(finger1Details.contains("Device is not connected.")){
 			    System.out.println("Device is not connected.");
-			    finger1Details=null;
-			    // lbls.get(0).setIcon(fImage1);
+			    finger1Details = null;
 			}else if(finger1Details.contains("Device not found.")){
                 System.out.println("Device not found.");
-                finger1Details=null;
-                // lbls.get(1).setIcon(fImage1);
+                finger1Details = null;
             }else if(finger1Details.contains("Device Timed Out")){
 			    System.out.println("Device Timed Out");
-			    finger1Details=null;
-			    // lbls.get(0).setIcon(fImage1);
+			    finger1Details = null;
 			}else{
 				scan1Details = "Scan quality is Good.";
 
@@ -299,29 +291,22 @@ public class registerDesk implements ActionListener {
 		}
 
 		if(ev.getActionCommand().equals("Scan 2")) {
-
-	        // fImage1 = new ImageIcon(fNewimg1);
-	        
-	        String finger2Details = dev.scan(txfs.get(0).getText(),sessionId);
+	        String finger2Details = dev.scan(txfs.get(0).getText());
 	        msg.get(0).setText(finger2Details);
                 
 	        if(finger2Details.contains("Scan quality is low.")){
 	            System.out.println("Scan quality is low.");
-	            finger2Details=null;
-	            // lbls.get(1).setIcon(fImage1);
+	            finger2Details = null;
 	        }else if(finger2Details.contains("Device is not connected.")){
 	            System.out.println("Device is not connected.");
-	            finger2Details=null;
-	            // lbls.get(1).setIcon(fImage1);
+	            finger2Details = null;
 	        }else if(finger2Details.contains("Device not found.")){
 	            System.out.println("Device not found.");
-	            finger2Details=null;
-	            // lbls.get(1).setIcon(fImage1);
+	            finger2Details = null;
 	        }else if(finger2Details.contains("Device Timed Out")){
 	            System.out.println("Device Timed Out");
-	            finger2Details=null;
-	            // lbls.get(1).setIcon(fImage1);
-	        }else{
+	            finger2Details = null;
+	        } else {
 	        	scan2Details = "Scan quality is Good.";
 
 	            JSONObject jFingerScan = new JSONObject(finger2Details);
@@ -333,7 +318,7 @@ public class registerDesk implements ActionListener {
 	            jfingerItem2.put("template1", template1);
 	            
 	            base64Decoder imgFingerPrint = new base64Decoder();
-	            imgFingerPrint.decode((String) jFingerScan.get("template_image0"),jStudent.getString("user_id")+"T2");
+	            imgFingerPrint.decode((String) jFingerScan.get("template_image0"), jStudent.getString("user_id") + "T2");
 	            
 	            ImageIcon imageF2 = new ImageIcon(""+imgFingerPrint.results+"/finger print images/"+jStudent.getString("user_id")+"T2"+".PNG");
 	            Image imgF2 = imageF2.getImage();
@@ -352,7 +337,7 @@ public class registerDesk implements ActionListener {
 				jarrayFinger.put(jfingerItem);
 				jarrayFinger.put(jfingerItem2);
 				jfinger.put("fingerprint_template_list",jarrayFinger);
-				String enResults =dev.enroll(jStudent.getString("user_id"),sessionId,jfinger);
+				String enResults =dev.enroll(jStudent.getString("user_id"), jfinger);
                                 
                 msg.get(0).setText(enResults);
 
@@ -392,20 +377,20 @@ public class registerDesk implements ActionListener {
 	            dsk.get(0).add(window);
 	            btns.get(4).setEnabled(false);
 	            btns.get(5).setEnabled(true);
-            }else{
-                JOptionPane.showMessageDialog(null,"No webcam detected");
-                msg.get(0).setText("No webcam detected");
-            }
-        }
+            } else {
+				JOptionPane.showMessageDialog(null,"No webcam detected");
+				msg.get(0).setText("No webcam detected");
+			}
+		}
 
-        if(ev.getActionCommand().equals("Take Photo")){
+		if(ev.getActionCommand().equals("Take Photo")){
 
-            String photoTaken = dev.takePhoto(jStudent.getString("user_id"));
+			String photoTaken = dev.takePhoto(jStudent.getString("user_id"));
 
-            JSONObject jObject = new JSONObject();
-            jObject.put("encoded_File", ""+photoTaken+"");
+			JSONObject jObject = new JSONObject();
+			jObject.put("encoded_File", ""+photoTaken+"");
 
-            if (photoTaken!=null) {
+			if (photoTaken!=null) {
 				Webcam webcam = Webcam.getDefault();
 				webcam.close();
 
@@ -424,56 +409,51 @@ public class registerDesk implements ActionListener {
         }
 	}
 
-	public void addJstudent(Vector<String> rowData) {
-
-        base_url base = new base_url();
-        Map<String, String> mapResults = base.base_url();
-        
-        jStudent = new JSONObject();
-        
-        
-        jStudent.put("login_id", rowData.get(0));
-        jStudent.put("name", rowData.get(1));
-        jStudent.put("phone_number", rowData.get(3));
-        jStudent.put("email", rowData.get(4));
-        jStudent.put("user_id", rowData.get(2));
-        jStudent.put("password", "password");
-        jStudent.put("pin", "");
-        jStudent.put("security_level", "");
-        jStudent.put("start_datetime", "2017-01-13T00:00:00.000Z");
-        jStudent.put("expiry_datetime", "2030-01-13T23:59:59.000Z");
-        jStudent.put("status", "AC");
-        
-        JSONArray jAccessGroups = new JSONArray();
-        JSONObject jAccessGroup = new JSONObject();
-        jAccessGroup.put("id", mapResults.get("access_group_id"));
-        jAccessGroup.put("included_by_user_group", "Yes");
-        jAccessGroup.put("name", mapResults.get("access_group_name"));
-        jAccessGroups.put(jAccessGroup);
-        
-        jStudent.put("access_groups", jAccessGroups);
-        
-        JSONObject jUserGroup = new JSONObject();
-        jUserGroup.put("id", mapResults.get("user_group_id"));
-        jUserGroup.put("name", mapResults.get("user_group_name"));
-        
-        jStudent.put("user_group", jUserGroup);
-        
-        JSONObject jpermission = new JSONObject();
-        jpermission.put("id", "255");
-        jpermission.put("name", "User");
-        
-        
-        JSONArray jpermissions = new JSONArray();
-        JSONObject jpermissionls = new JSONObject();
-        jpermissionls.put("allowed_group_id_list", "[1]");
-        jpermissionls.put("module", "CARD");
-        jpermissionls.put("read", true);
-        jpermissionls.put("write", true);
-        jpermissions.put(jpermissionls);
-        
-        jpermission.put("permissions", jpermissions);
-        jStudent.put("permission", jpermission);
+	public void addJstudent(Vector<String> rowData) {       
+		jStudent = new JSONObject();
+		
+		jStudent.put("login_id", rowData.get(0));
+		jStudent.put("name", rowData.get(1));
+		jStudent.put("phone_number", rowData.get(3));
+		jStudent.put("email", rowData.get(4));
+		jStudent.put("user_id", rowData.get(2));
+		jStudent.put("password", "password");
+		jStudent.put("pin", "");
+		jStudent.put("security_level", "");
+		jStudent.put("start_datetime", "2017-01-13T00:00:00.000Z");
+		jStudent.put("expiry_datetime", "2030-01-13T23:59:59.000Z");
+		jStudent.put("status", "AC");
+		
+		JSONArray jAccessGroups = new JSONArray();
+		JSONObject jAccessGroup = new JSONObject();
+		jAccessGroup.put("id", cfgs.get("access_group_id"));
+		jAccessGroup.put("included_by_user_group", "Yes");
+		jAccessGroup.put("name", cfgs.get("access_group_name"));
+		jAccessGroups.put(jAccessGroup);
+		
+		jStudent.put("access_groups", jAccessGroups);
+		
+		JSONObject jUserGroup = new JSONObject();
+		jUserGroup.put("id", cfgs.get("user_group_id"));
+		jUserGroup.put("name", cfgs.get("user_group_name"));
+		
+		jStudent.put("user_group", jUserGroup);
+		
+		JSONObject jpermission = new JSONObject();
+		jpermission.put("id", "255");
+		jpermission.put("name", "User");
+		
+		
+		JSONArray jpermissions = new JSONArray();
+		JSONObject jpermissionls = new JSONObject();
+		jpermissionls.put("allowed_group_id_list", "[1]");
+		jpermissionls.put("module", "CARD");
+		jpermissionls.put("read", true);
+		jpermissionls.put("write", true);
+		jpermissions.put(jpermissionls);
+		
+		jpermission.put("permissions", jpermissions);
+		jStudent.put("permission", jpermission);
 
 	}
     
