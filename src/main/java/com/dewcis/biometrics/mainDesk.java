@@ -345,7 +345,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 			int bRow = tableNon.getSelectedRow();
 			if ((bRow != -1) && (ev.getClickCount() == 2)) {
 				int index = tableNon.convertRowIndexToModel(bRow);
-				enrollDesk eDesk = new enrollDesk(tNonRegModel.getTitles(), tNonRegModel.getRowValues(index), cfgs, dev);
+				enrollDesk eDesk = new enrollDesk(tNonRegModel.getTitles(), tNonRegModel.getRowValues(index), dev);
 			}
 		} else if(selectedIndex == 1) {
 			// Selected Row in the Registerd users in the second JTabbedPane called "Registred".
@@ -403,7 +403,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
                     userID = Integer.toString(tsmresponse.getJSONObject(i).getJSONObject("user").getInt("user_id"));
                 }
                 String userResults = dev.userDetails(userID);
-                VerifyDesk ver = new VerifyDesk(userResults);
+                VerifyDesk ver = new VerifyDesk(userResults, dev);
                 
             }else{
                 JOptionPane.showMessageDialog(null, "User Not found");

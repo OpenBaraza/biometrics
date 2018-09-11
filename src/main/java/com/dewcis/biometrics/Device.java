@@ -212,35 +212,33 @@ public class Device {
 	}
 	
 	//Take photo from a webcam connected to your machine
-	public String takePhoto(String user_id){
-		String encodedFile = null;
+	public BufferedImage takePhoto(String user_id){
+		BufferedImage image = null;
 
 		Webcam webcam = Webcam.getDefault();
 
 		if (webcam != null) {
 			try {
-				BufferedImage image = webcam.getImage();
+				image = webcam.getImage();
 				
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 				ImageIO.write(image, "png", os);
 				InputStream is = new ByteArrayInputStream(os.toByteArray());
 				
 				// Repository access
-				String wdUrl = "https://demo.dewcis.com/repository/webdav/ueab/";
-				webdav wdv = new webdav(wdUrl, "repository", "baraza");
-				
+				webdav wdv = new webdav(cfgs.get("webdav_path"), cfgs.get("webdav_username"), cfgs.get("webdav_password"));
 				wdv.saveFile(is, "pp_"+user_id+".png");
-                
-				base64Decoder myimage = new base64Decoder();
-				ImageIO.write(image, "PNG", new File(""+myimage.results+"/user photo images/"+user_id+".PNG"));
-            } catch (IOException ex) {
+			} catch (IOException ex) {
 				log.log(Level.SEVERE, null, ex);
-            }
+			}
 		} else {
 			JOptionPane.showMessageDialog(null,"No webcam detected");
 		}
 
-		return encodedFile;
+		return image;
 	}
-
+	
+	public Map<String, String> getConfigs() {
+		return cfgs;
+	}
 }

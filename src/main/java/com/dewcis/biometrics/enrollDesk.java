@@ -1,18 +1,23 @@
 package com.dewcis.biometrics;
 
 import java.sql.Connection;
-
+import java.io.InputStream;
+import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Vector;
 import java.util.logging.Logger;
+import java.net.MalformedURLException;
 
-
+import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
@@ -23,6 +28,9 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.JDesktopPane;
 import javax.swing.ImageIcon;
 import javax.swing.JTextField;
+import javax.swing.JInternalFrame;
+import javax.swing.JOptionPane;
+import javax.swing.border.LineBorder;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -30,22 +38,12 @@ import org.json.JSONArray;
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
 import com.github.sarxos.webcam.WebcamResolution;
-import java.awt.Dimension;
-import java.awt.Image;
-import java.net.MalformedURLException;
-import java.util.Map;
-import java.util.logging.Level;
-import javax.swing.JInternalFrame;
-import javax.swing.JOptionPane;
-
-import javax.swing.border.LineBorder;
 
 public class enrollDesk implements ActionListener {
 	Logger log = Logger.getLogger(enrollDesk.class.getName());
 
 	Connection db = null;
 	
-	Configs cfgs = null;
 	Device dev = null;
 	
 	JFrame eFrame;
@@ -70,15 +68,19 @@ public class enrollDesk implements ActionListener {
 	JSONObject jfingerItem = new JSONObject();
 	JSONObject jfingerItem2 = new JSONObject();
 	
-	base64Decoder myimage = new base64Decoder(); //fingerprint location and decoding
-	ImageIcon fImage1 = new ImageIcon("" + myimage.results + "/finger print images/fTemplate1.PNG");
-	Image fimage1 = fImage1.getImage();
-	Image fNewimg1 = fimage1.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
+	imageManager imageMgr = null;
+	ImageIcon fImage1 = null;
+	Image fimage1 = null;
+	Image fNewimg1 = null;
 
-	public enrollDesk(Vector<String> titles, Vector<String> rowData, Configs cfgs, Device dev) {
-		this.cfgs = cfgs;
+	public enrollDesk(Vector<String> titles, Vector<String> rowData, Device dev) {
 		this.dev = dev;
 
+		imageMgr = new imageManager(dev.getConfigs());
+		fImage1 = new ImageIcon(imageMgr.getImage("ftemplate1.png"));
+		fimage1 = fImage1.getImage();
+		fNewimg1 = fimage1.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
+		
 		mainPanel = new JPanel(null);
 		
 		// Fields panel with fields
@@ -248,99 +250,93 @@ public class enrollDesk implements ActionListener {
 			msg.get(0).setText(finger1Details);
 
 			if(finger1Details.contains("Scan quality is low.")){
-			    System.out.println("Scan quality is low.");
-			    finger1Details=null;
-			    lbls.get(0).setIcon(fImage1);
+				System.out.println("Scan quality is low.");
+				finger1Details=null;
+				lbls.get(0).setIcon(fImage1);
 			}else if(finger1Details.contains("Device is not connected.")){
-			    System.out.println("Device is not connected.");
-			    finger1Details=null;
-			    lbls.get(0).setIcon(fImage1);
+				System.out.println("Device is not connected.");
+				finger1Details=null;
+				lbls.get(0).setIcon(fImage1);
 			}else if(finger1Details.contains("Device not found.")){
-			    System.out.println("Device not found.");
-			    finger1Details=null;
-			    lbls.get(0).setIcon(fImage1);
+				System.out.println("Device not found.");
+				finger1Details=null;
+				lbls.get(0).setIcon(fImage1);
 			}else if(finger1Details.contains("Device Timed Out")){
-			    System.out.println("Device Timed Out");
-			    finger1Details=null;
-			    lbls.get(0).setIcon(fImage1);
+				System.out.println("Device Timed Out");
+				finger1Details=null;
+				lbls.get(0).setIcon(fImage1);
 			}else{
 				scan1Details = "Scan quality is Good.";
 
-			    JSONObject jFingerScan = new JSONObject(finger1Details);
-			    String template0 = jFingerScan.getString("template0");
-			    String template1 = template0;
-			    
-			    jfingerItem.put("is_prepare_for_duress", false);
-			    jfingerItem.put("template0", template0);
-			    jfingerItem.put("template1", template1);
-			    
-			    base64Decoder imgFingerPrint = new base64Decoder();
-			    imgFingerPrint.decode(jFingerScan.getString("template_image0"), jStudent.getString("user_id") + "T1");
-			    
-			   	ImageIcon imageF1 = new ImageIcon(""+imgFingerPrint.results+"/finger print images/"+jStudent.getString("user_id")+"T1"+".PNG");
-			    Image imgF1 = imageF1.getImage();
-			    Image newF1 = imgF1.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
-			    imageF1 = new ImageIcon(newF1);
-			    
-			    lbls.get(0).setIcon(imageF1);
-			    //Enabling buttons and disabling
-			    btns.get(1).setEnabled(false);
-			    btns.get(2).setEnabled(true);
+				JSONObject jFingerScan = new JSONObject(finger1Details);
+				String template0 = jFingerScan.getString("template0");
+				String template1 = template0;
+				
+				jfingerItem.put("is_prepare_for_duress", false);
+				jfingerItem.put("template0", template0);
+				jfingerItem.put("template1", template1);
+				
+				BufferedImage sImage = imageMgr.saveImage(jFingerScan.getString("template_image0"), "fp_" + jStudent.getString("user_id") + "_t1.png");
+				ImageIcon imageF1 = new ImageIcon(sImage);
+				Image imgF1 = imageF1.getImage();
+				Image newF1 = imgF1.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
+				imageF1 = new ImageIcon(newF1);
+				
+				lbls.get(0).setIcon(imageF1);
+				//Enabling buttons and disabling
+				btns.get(1).setEnabled(false);
+				btns.get(2).setEnabled(true);
 			}
 		}
 
 		if(ev.getActionCommand().equals("Scan 2")) {
 
-	        fImage1 = new ImageIcon(fNewimg1);
-	        
-	        String finger2Details = dev.scan(tfDevice.getText());
-	        msg.get(0).setText(finger2Details);
-	        
-	        if(finger2Details.contains("Scan quality is low.")){
-	            System.out.println("Scan quality is low.");
-	            finger2Details=null;
-	            lbls.get(1).setIcon(fImage1);
-	        }else if(finger2Details.contains("Device is not connected.")){
-	            System.out.println("Device is not connected.");
-	            finger2Details=null;
-	            lbls.get(1).setIcon(fImage1);
-	        }else if(finger2Details.contains("Device not found.")){
-	            System.out.println("Device is not found.");
-	            finger2Details=null;
-	            lbls.get(1).setIcon(fImage1);
-	        }else if(finger2Details.contains("Device Timed Out")){
-	            System.out.println("Device Timed Out");
-	            finger2Details=null;
-	            lbls.get(1).setIcon(fImage1);
-	        }else{
-	        	scan2Details = "Scan quality is Good.";
+			fImage1 = new ImageIcon(fNewimg1);
+			
+			String finger2Details = dev.scan(tfDevice.getText());
+			msg.get(0).setText(finger2Details);
+			
+			if(finger2Details.contains("Scan quality is low.")){
+				System.out.println("Scan quality is low.");
+				finger2Details=null;
+				lbls.get(1).setIcon(fImage1);
+			}else if(finger2Details.contains("Device is not connected.")){
+				System.out.println("Device is not connected.");
+				finger2Details=null;
+				lbls.get(1).setIcon(fImage1);
+			}else if(finger2Details.contains("Device not found.")){
+				System.out.println("Device is not found.");
+				finger2Details=null;
+				lbls.get(1).setIcon(fImage1);
+			}else if(finger2Details.contains("Device Timed Out")){
+				System.out.println("Device Timed Out");
+				finger2Details=null;
+				lbls.get(1).setIcon(fImage1);
+			}else{
+				scan2Details = "Scan quality is Good.";
 
-	            JSONObject jFingerScan = new JSONObject(finger2Details);
-	            String template0 = (String) jFingerScan.get("template0");
-	            String template1 = template0;
+				JSONObject jFingerScan = new JSONObject(finger2Details);
+				String template0 = (String) jFingerScan.get("template0");
+				String template1 = template0;
+				
+				jfingerItem2.put("is_prepare_for_duress", false);
+				jfingerItem2.put("template0", template0);
+				jfingerItem2.put("template1", template1);
+				
+				BufferedImage sImage = imageMgr.saveImage(jFingerScan.getString("template_image0"), "fp_" + jStudent.getString("user_id") + "_t2.png");
+				ImageIcon imageF2 = new ImageIcon(sImage);
+				Image imgF2 = imageF2.getImage();
+				Image newF2 = imgF2.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
+				imageF2 = new ImageIcon(newF2);
 	            
-	            jfingerItem2.put("is_prepare_for_duress", false);
-	            jfingerItem2.put("template0", template0);
-	            jfingerItem2.put("template1", template1);
-	            
-	            base64Decoder imgFingerPrint = new base64Decoder();
-	            imgFingerPrint.decode((String) jFingerScan.get("template_image0"),jStudent.getString("user_id")+"T2");
-	            
-	            ImageIcon imageF2 = new ImageIcon(""+imgFingerPrint.results+"/finger print images/"+jStudent.getString("user_id")+"T2"+".PNG");
-	            Image imgF2 = imageF2.getImage();
-	            Image newF2 = imgF2.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
-	            imageF2 = new ImageIcon(newF2);
-	            
-	            lbls.get(1).setIcon(imageF2);
-	            //Enabling buttons and disabling
-	            btns.get(2).setEnabled(false);
-			    btns.get(3).setEnabled(true);
-	        }
-	        
+				lbls.get(1).setIcon(imageF2);
+				//Enabling buttons and disabling
+				btns.get(2).setEnabled(false);
+				btns.get(3).setEnabled(true);
+			}
 		}
 
 		if(ev.getActionCommand().equals("Enroll")) {
-
 			if(!scan1Details.isEmpty() && !scan2Details.isEmpty()){
 				jarrayFinger.put(jfingerItem);
 				jarrayFinger.put(jfingerItem2);
@@ -355,72 +351,67 @@ public class enrollDesk implements ActionListener {
 			
 		}
 
-		if(ev.getActionCommand().equals("Open Camera")){
+		if(ev.getActionCommand().equals("Open Camera")) {
+			Dimension[] nonStandardResolutions = new Dimension[] {WebcamResolution.HD.getSize(),};
+			Webcam webcam = Webcam.getDefault();
 
-            Dimension[] nonStandardResolutions = new Dimension[] {WebcamResolution.HD.getSize(),};
-            Webcam webcam = Webcam.getDefault();
+			if (webcam != null){
+				webcam.setCustomViewSizes(nonStandardResolutions);
+				webcam.setViewSize(WebcamResolution.HD.getSize());
+				webcam.open(true);
+				msg.get(0).setText("Webcam Opened");
 
-            if (webcam != null){
-	            webcam.setCustomViewSizes(nonStandardResolutions);
-	            webcam.setViewSize(WebcamResolution.HD.getSize());
-	            webcam.open(true);
-                    msg.get(0).setText("Webcam Opened");
+				WebcamPanel panel = new WebcamPanel(webcam, false);
+				panel.setPreferredSize(WebcamResolution.QVGA.getSize());
+				panel.setFPSDisplayed(false);
+				panel.setFPSLimited(true);
+				panel.setFPSLimit(20);
+				panel.start();
 
-	            WebcamPanel panel = new WebcamPanel(webcam, false);
-	            panel.setPreferredSize(WebcamResolution.QVGA.getSize());
-	            panel.setFPSDisplayed(false);
-	            panel.setFPSLimited(true);
-	            panel.setFPSLimit(20);
-	            panel.start();
+				JInternalFrame window = new JInternalFrame();
+				((javax.swing.plaf.basic.BasicInternalFrameUI)window.getUI()).setNorthPane(null);
+				window.add(panel);
+				window.pack();
+				window.setMaximumSize(WebcamResolution.QVGA.getSize());
+				window.setVisible(true);
 
-
-	            JInternalFrame window = new JInternalFrame();
-	            ((javax.swing.plaf.basic.BasicInternalFrameUI)window.getUI()).setNorthPane(null);
-	            window.add(panel);
-	            window.pack();
-	            window.setMaximumSize(WebcamResolution.QVGA.getSize());
-	            window.setVisible(true);
-
-	            dsk.get(0).add(window);
-	            //Enabling buttons and disabling
+				dsk.get(0).add(window);
+				//Enabling buttons and disabling
 				btns.get(4).setEnabled(false);
-			    btns.get(5).setEnabled(true);
-            }else{
-                JOptionPane.showMessageDialog(null,"No webcam detected");
-                msg.get(0).setText("No webcam detected");
-            }
+				btns.get(5).setEnabled(true);
+			} else {
+				JOptionPane.showMessageDialog(null,"No webcam detected");
+				msg.get(0).setText("No webcam detected");
+			}
         }
 
-        if(ev.getActionCommand().equals("Take Photo")){
+		if(ev.getActionCommand().equals("Take Photo")){
+			BufferedImage photoTaken = dev.takePhoto(jStudent.getString("user_id"));
 
-            String photoTaken = dev.takePhoto(jStudent.getString("user_id"));
-
-            JSONObject jObject = new JSONObject();
-            jObject.put("encoded_File", ""+photoTaken+"");
-
-            if (photoTaken!=null) {
+			if (photoTaken != null) {
 				Webcam webcam = Webcam.getDefault();
 				webcam.close();
 				
 				dsk.get(0).setVisible(false);
 
-				base64Decoder photoImage = new base64Decoder();
-				ImageIcon pImage = new ImageIcon(""+photoImage.results+"/user photo images/"+jStudent.getString("user_id")+".PNG");
+				ImageIcon pImage = new ImageIcon(photoTaken);
 				Image imgP = pImage.getImage();
 				Image newPImg = imgP.getScaledInstance(300,240,  Image.SCALE_SMOOTH);
 				pImage = new ImageIcon(newPImg);
 
-                msg.get(0).setText("Photo Taken Successfully");
+				msg.get(0).setText("Photo Taken Successfully");
 				lblPhoto.get(0).setVisible(true);
 				lblPhoto.get(0).setIcon(pImage);
 				btns.get(5).setEnabled(false);
-            }
-            
-        }
+			}
+			
+		}
 	}
 
 	public void addJstudent(Vector<String> rowData) {
 		jStudent = new JSONObject();
+		
+		Map<String, String> cfgs = dev.getConfigs();
 		
 		jStudent.put("login_id", rowData.get(0));
 		jStudent.put("name", rowData.get(1));
@@ -436,16 +427,16 @@ public class enrollDesk implements ActionListener {
 		
 		JSONArray jAccessGroups = new JSONArray();
 		JSONObject jAccessGroup = new JSONObject();
-		jAccessGroup.put("id", cfgs.getConfig("access_group_id"));
+		jAccessGroup.put("id", cfgs.get("access_group_id"));
 		jAccessGroup.put("included_by_user_group", "Yes");
-		jAccessGroup.put("name", cfgs.getConfig("access_group_name"));
+		jAccessGroup.put("name", cfgs.get("access_group_name"));
 		jAccessGroups.put(jAccessGroup);
 		
 		jStudent.put("access_groups", jAccessGroups);
 		
 		JSONObject jUserGroup = new JSONObject();
-		jUserGroup.put("id", cfgs.getConfig("user_group_id"));
-		jUserGroup.put("name", cfgs.getConfig("user_group_name"));
+		jUserGroup.put("id", cfgs.get("user_group_id"));
+		jUserGroup.put("name", cfgs.get("user_group_name"));
 		
 		jStudent.put("user_group", jUserGroup);
 		

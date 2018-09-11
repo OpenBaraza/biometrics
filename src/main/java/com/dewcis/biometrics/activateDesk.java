@@ -45,10 +45,12 @@ public class activateDesk implements ActionListener {
 	List<JLabel> lblPhoto;
 	List<JDesktopPane> dsk;
 	
-	base64Decoder myImage = new base64Decoder();
+	imageManager imageMgr = null;
 
 	public activateDesk(Vector<String> titles,String student, Device dev) {
 		this.dev = dev;
+		
+		imageMgr = new imageManager(dev.getConfigs());
 		
 		jStudent = new JSONObject(student);
 
@@ -85,8 +87,8 @@ public class activateDesk implements ActionListener {
 		fpPanel.setBounds(5, 180, 400, 300);
 		mainPanel.add(fpPanel);
 
-		ImageIcon image1 = new ImageIcon(""+myImage.results+"/finger print images/"+jStudent.getString("user_id")+"T1"+".PNG");
-        ImageIcon image2 = new ImageIcon(""+myImage.results+"/finger print images/"+jStudent.getString("user_id")+"T2"+".PNG");
+		ImageIcon image1 = new ImageIcon(imageMgr.getImage("fp_" + jStudent.getString("user_id") + "_t1.png"));
+		ImageIcon image2 = new ImageIcon(imageMgr.getImage("fp_" + jStudent.getString("user_id") + "_t2.png"));
 		Image fimage1 = image1.getImage();
         Image fimage2 = image2.getImage();
 		Image fnewimg1 = fimage1.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
@@ -105,7 +107,7 @@ public class activateDesk implements ActionListener {
 		camPanel.setBounds(425, 180, 350, 300);
 		mainPanel.add(camPanel);
 
-		ImageIcon pImage = new ImageIcon(""+myImage.results+"/user photo images/"+jStudent.getString("user_id")+".PNG");
+		ImageIcon pImage = new ImageIcon(imageMgr.getImage("pp_" + jStudent.getString("user_id") + ".png"));
 		Image pimage1 = pImage.getImage();
 		Image pnewimg1 = pimage1.getScaledInstance(330,240,  Image.SCALE_SMOOTH);
 		pImage = new ImageIcon(pnewimg1);
