@@ -410,7 +410,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 				JOptionPane.showMessageDialog(null, "User Not found");
 			}
 		} else if(ev.getActionCommand().equals("Search")) {
-			String eventLOG=null;
+			String eventLOG = null;
 			int eventLogName = cmbs.get(0).getSelectedIndex();
 			
 			if(0 != eventLogName) {   
