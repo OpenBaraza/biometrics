@@ -24,7 +24,7 @@ public class imageManager {
 		String webdavPath = cfgs.get("webdav_path");
 		String webdavUsername = cfgs.get("webdav_username");
 		String webdavPassword = cfgs.get("webdav_password");
-		webdav wdv = new webdav(webdavPath, webdavUsername, webdavPassword);
+		wdv = new webdav(webdavPath, webdavUsername, webdavPassword);
 	}
 		
 	public BufferedImage saveImage(String imageStr, String fileName) {
@@ -33,6 +33,8 @@ public class imageManager {
 			byte[] imageArr = Base64.getDecoder().decode(imageStr);
 			InputStream is = new ByteArrayInputStream(imageArr);
 			wdv.saveFile(is, fileName);
+			
+			is = new ByteArrayInputStream(imageArr);
 			img = ImageIO.read(is);
 		} catch(IOException ex) {
 			log.severe("IO Error : " + ex);

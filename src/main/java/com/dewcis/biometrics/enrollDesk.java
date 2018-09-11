@@ -249,23 +249,23 @@ public class enrollDesk implements ActionListener {
 			String finger1Details = dev.scan(tfDevice.getText());
 			msg.get(0).setText(finger1Details);
 
-			if(finger1Details.contains("Scan quality is low.")){
+			if(finger1Details.contains("Scan quality is low.")) {
 				System.out.println("Scan quality is low.");
 				finger1Details=null;
 				lbls.get(0).setIcon(fImage1);
-			}else if(finger1Details.contains("Device is not connected.")){
+			} else if(finger1Details.contains("Device is not connected.")) {
 				System.out.println("Device is not connected.");
 				finger1Details=null;
 				lbls.get(0).setIcon(fImage1);
-			}else if(finger1Details.contains("Device not found.")){
+			} else if(finger1Details.contains("Device not found.")) {
 				System.out.println("Device not found.");
 				finger1Details=null;
 				lbls.get(0).setIcon(fImage1);
-			}else if(finger1Details.contains("Device Timed Out")){
+			} else if(finger1Details.contains("Device Timed Out")) {
 				System.out.println("Device Timed Out");
 				finger1Details=null;
 				lbls.get(0).setIcon(fImage1);
-			}else{
+			} else {
 				scan1Details = "Scan quality is Good.";
 
 				JSONObject jFingerScan = new JSONObject(finger1Details);
@@ -300,19 +300,19 @@ public class enrollDesk implements ActionListener {
 				System.out.println("Scan quality is low.");
 				finger2Details=null;
 				lbls.get(1).setIcon(fImage1);
-			}else if(finger2Details.contains("Device is not connected.")){
+			} else if(finger2Details.contains("Device is not connected.")){
 				System.out.println("Device is not connected.");
 				finger2Details=null;
 				lbls.get(1).setIcon(fImage1);
-			}else if(finger2Details.contains("Device not found.")){
+			} else if(finger2Details.contains("Device not found.")){
 				System.out.println("Device is not found.");
 				finger2Details=null;
 				lbls.get(1).setIcon(fImage1);
-			}else if(finger2Details.contains("Device Timed Out")){
+			} else if(finger2Details.contains("Device Timed Out")){
 				System.out.println("Device Timed Out");
 				finger2Details=null;
 				lbls.get(1).setIcon(fImage1);
-			}else{
+			} else {
 				scan2Details = "Scan quality is Good.";
 
 				JSONObject jFingerScan = new JSONObject(finger2Details);
@@ -340,8 +340,10 @@ public class enrollDesk implements ActionListener {
 			if(!scan1Details.isEmpty() && !scan2Details.isEmpty()){
 				jarrayFinger.put(jfingerItem);
 				jarrayFinger.put(jfingerItem2);
-				jfinger.put("fingerprint_template_list",jarrayFinger);
-				System.out.println("BASE 2010 Finger Prints : " + jfinger.toString());
+				jfinger.put("fingerprint_template_list", jarrayFinger);
+				
+				//System.out.println("BASE 2010 Finger Prints : " + jfinger.toString());
+				
 				String enResults = dev.enroll(jStudent.getString("user_id"), jfinger);
 				msg.get(0).setText(enResults);
 				//Enabling buttons and disabling

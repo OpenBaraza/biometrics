@@ -167,12 +167,14 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		filterPanel.add(filterData);
 		super.add(filterPanel, BorderLayout.PAGE_END);
 	}
-
 	
 	public void getStudents() {
 		mySql = "SELECT s.studentid, s.studentname, s.telno, s.email, e.entity_id "
-				+ "FROM students s INNER JOIN entitys e ON s.studentid = e.user_name "
-				+ "WHERE s.telno is not null AND s.email is not null LIMIT 200";
+			+ "FROM studentdegreeview s INNER JOIN entitys e ON s.studentid = e.user_name "
+			+ "INNER JOIN qstudents qs ON s.studentdegreeid = qs.studentdegreeid "
+			+ "INNER JOIN quarters q ON qs.quarterid = q.quarterid "
+			+ "WHERE (q.active = true) AND (s.telno is not null) AND (s.email is not null) "
+			+ "LIMIT 200";
 
 		fields = new HashMap<String, String>();
 		fields.put("studentid", "Student ID");
@@ -346,6 +348,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 			if ((bRow != -1) && (ev.getClickCount() == 2)) {
 				int index = tableNon.convertRowIndexToModel(bRow);
 				enrollDesk eDesk = new enrollDesk(tNonRegModel.getTitles(), tNonRegModel.getRowValues(index), dev);
+				filter();		// Filter
 			}
 		} else if(selectedIndex == 1) {
 			// Selected Row in the Registerd users in the second JTabbedPane called "Registred".
@@ -372,7 +375,6 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	}
 
 	public void actionPerformed(ActionEvent ev) {
-
 		if(ev.getActionCommand().equals("Verify")) {
 			Clock c = Clock.systemUTC();  
 			Duration d = Duration.ofSeconds(-15);  
@@ -398,16 +400,15 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 			JSONObject jsonObject = new JSONObject(eventlogView);
 			JSONArray tsmresponse = (JSONArray) jsonObject.get("records");
 			if (!tsmresponse.isNull(0)) {
-                String userID =null;
-                for(int i=0; i<tsmresponse.length(); i++){
-                    userID = Integer.toString(tsmresponse.getJSONObject(i).getJSONObject("user").getInt("user_id"));
-                }
-                String userResults = dev.userDetails(userID);
-                VerifyDesk ver = new VerifyDesk(userResults, dev);
-                
-            }else{
-                JOptionPane.showMessageDialog(null, "User Not found");
-            }
+				String userID =null;
+				for(int i=0; i<tsmresponse.length(); i++){
+					userID = Integer.toString(tsmresponse.getJSONObject(i).getJSONObject("user").getInt("user_id"));
+				}
+				String userResults = dev.userDetails(userID);
+				VerifyDesk ver = new VerifyDesk(userResults, dev);
+			} else {
+				JOptionPane.showMessageDialog(null, "User Not found");
+			}
 		} else if(ev.getActionCommand().equals("Search")) {
 			String eventLOG=null;
 			int eventLogName = cmbs.get(0).getSelectedIndex();
@@ -441,15 +442,21 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	}
 	
 	public void filter() {
-		String wheresql = fieldNames.get(fieldList.getSelectedIndex());
-		wheresql += " " + filterList.getSelectedItem();
-		if(filterList.getSelectedIndex() < 2) wheresql += " '%" + filterData.getText() + "%'";
-		else wheresql += " '" + filterData.getText() + "'";
+		String whereSql = " AND " + fieldNames.get(fieldList.getSelectedIndex());
+		if(filterData.getText().trim().equals("")) {
+			whereSql = "";
+		} else {
+			whereSql += " " + filterList.getSelectedItem();
+			if(filterList.getSelectedIndex() < 2) whereSql += " '%" + filterData.getText() + "%'";
+			else whereSql += " '" + filterData.getText() + "'";
+		}
 		
 		mySql = "SELECT s.studentid, s.studentname, s.telno, s.email, e.entity_id "
-			+ "FROM students s INNER JOIN entitys e ON s.studentid = e.user_name "
-			+ "WHERE (s.telno is not null) AND (s.email is not null) AND "
-			+ wheresql
+			+ "FROM studentdegreeview s INNER JOIN entitys e ON s.studentid = e.user_name "
+			+ "INNER JOIN qstudents qs ON s.studentdegreeid = qs.studentdegreeid "
+			+ "INNER JOIN quarters q ON qs.quarterid = q.quarterid "
+			+ "WHERE (q.active = true) AND (s.telno is not null) AND (s.email is not null) "
+			+ whereSql
 			+ " LIMIT 200";
 System.out.println("BASE 2010 " + mySql);
 
