@@ -313,19 +313,19 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 
 		for(int i = 0; i < aLog.length(); i++){
 			Vector<String> row = new Vector<String>();  
-			row.add(""+aLog.getJSONObject(i).getString("datetime")+"");
-			row.add(""+aLog.getJSONObject(i).getJSONObject("device").getInt("id")+"");
-			row.add(""+aLog.getJSONObject(i).getJSONObject("device").getString("name")+"");
+			row.add(aLog.getJSONObject(i).getString("datetime"));
+			row.add(aLog.getJSONObject(i).getJSONObject("device").getInt("id") + "");
+			row.add(aLog.getJSONObject(i).getJSONObject("device").getString("name"));
 			if(aLog.getJSONObject(i).has("user")) {
-				row.add(""+aLog.getJSONObject(i).getJSONObject("user").getInt("user_id")+"");
+				row.add(aLog.getJSONObject(i).getJSONObject("user").getString("user_id"));
 			} else {
 				row.add(" ");
 			} if(aLog.getJSONObject(i).has("user")&&aLog.getJSONObject(i).getJSONObject("user").has("name")) {
-				row.add(""+aLog.getJSONObject(i).getJSONObject("user").getString("name")+"");
+				row.add(aLog.getJSONObject(i).getJSONObject("user").getString("name"));
 			} else {
 				row.add(" ");
 			}
-			row.add(""+aLog.getJSONObject(i).getJSONObject("event_type").getString("description")+"");
+			row.add(aLog.getJSONObject(i).getJSONObject("event_type").getString("description"));
 			rowData.add(row);
 			
 			logModel.setDataVector(rowData, columnNames);
