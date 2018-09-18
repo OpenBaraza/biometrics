@@ -80,7 +80,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	tableModel tModel, tNonRegModel, tINModel;
 	DefaultTableModel logModel;
 
-	String[] eventCodeName,logListcode;
+	String[] eventCodeName, logListcode;
 
 	public mainDesk(Connection db) {
 		super(new BorderLayout());
@@ -101,16 +101,6 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		//log user panel
 		logPanel = new JPanel(new BorderLayout());
 		tabbedPane.addTab("users Logs", logPanel);
-
-		rowData = new Vector<Vector<String>>();
-		columnNames = new Vector<String>();
-		columnNames.add("Date Time"); columnNames.add("Device ID"); columnNames.add("Device Name");
-		columnNames.add("Entity ID"); columnNames.add("User Name");columnNames.add("Event");
-
-		logModel = new DefaultTableModel(rowData,columnNames);
-		tableLog = new JTable(logModel);
-		JScrollPane scrollPanereg = new JScrollPane(tableLog);
-		logPanel.add(scrollPanereg, BorderLayout.CENTER);
 		
 		// Getting details from the config.txt from class base_url
 		cfgs = new Configs(db);
@@ -118,7 +108,19 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 
 		// Add students on table
 		getStudents();
-		getLogs();
+		//getLogs();
+		
+		logEvent getLogs = new logEvent(dev);
+		rowData = getLogs.getRowData();
+		columnNames = getLogs.getColumnNames();
+
+		eventCodeName = getLogs.getEventCodeName();
+		logListcode = getLogs.getLogListcode();
+		
+		logModel = new DefaultTableModel(rowData,columnNames);
+		tableLog = new JTable(logModel);
+		JScrollPane scrollPanereg = new JScrollPane(tableLog);
+		logPanel.add(scrollPanereg, BorderLayout.CENTER);
 
 		//Verify user panel
 		btns = new ArrayList<JButton>();
@@ -184,7 +186,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		fields.put("entity_id", "Entity ID");
 		fieldNames = new ArrayList<String>(fields.keySet());
         
-        // Get 
+        // Get device and registered list
 		enrolment = new Enrolment();
 		enrolment.usersList(dev);
 		enrolment.getStudents(db, mySql, fields);
@@ -458,13 +460,14 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 			+ "WHERE (q.active = true) AND (s.telno is not null) AND (s.email is not null) "
 			+ whereSql
 			+ " LIMIT 200";
-System.out.println("BASE 2010 " + mySql);
 
 		refresh();
 	}
 
 	public void refresh() {
 		enrolment.getStudents(db, mySql, fields);
+		enrolment.usersList(dev);
+		
 		tNonRegModel.refresh(enrolment.getUnRegistred());
 		tableNon.repaint();
 		tableNon.revalidate();
