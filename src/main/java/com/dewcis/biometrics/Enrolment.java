@@ -42,10 +42,13 @@ public class Enrolment {
 		enrolledInActive.clear();
 
 		String results = dev.usersList();
+System.out.println("BASE 2010  : ");
 
 		if(results != null) {
 			JSONObject jResults = new JSONObject(results);
 			JSONArray jresponse = (JSONArray) jResults.get("records");
+			
+System.out.println("BASE 2020  : " + jresponse.toString());
 
 			for(int i=0; i<jresponse.length(); i++) {
 				if (jresponse.getJSONObject(i).getString("status").equals("AC"))

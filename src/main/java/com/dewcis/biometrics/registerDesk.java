@@ -110,14 +110,18 @@ public class registerDesk implements ActionListener {
 		fpPanel.setBounds(5, 130, 400, 300);
 		mainPanel.add(fpPanel);
 
-		ImageIcon image1 = new ImageIcon(imageMgr.getImage("fp_" + jStudent.getString("user_id") + "_t1.png"));
-		ImageIcon image2 = new ImageIcon(imageMgr.getImage("fp_" + jStudent.getString("user_id") + "_t2.png"));
-		Image fimage1 = image1.getImage();
-		Image fimage2 = image2.getImage();
-		Image fnewimg1 = fimage1.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
-		Image fnewimg2 = fimage2.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
-		image1 = new ImageIcon(fnewimg1);
-		image2 = new ImageIcon(fnewimg2);
+		ImageIcon image1 = new ImageIcon();
+		ImageIcon image2 = new ImageIcon();
+		if(imageMgr.ifExists("fp_" + jStudent.getString("user_id") + "_t1.png")) {
+			image1 = new ImageIcon(imageMgr.getImage("fp_" + jStudent.getString("user_id") + "_t1.png"));
+			image2 = new ImageIcon(imageMgr.getImage("fp_" + jStudent.getString("user_id") + "_t2.png"));
+			Image fimage1 = image1.getImage();
+			Image fimage2 = image2.getImage();
+			Image fnewimg1 = fimage1.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
+			Image fnewimg2 = fimage2.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
+			image1 = new ImageIcon(fnewimg1);
+			image2 = new ImageIcon(fnewimg2);
+		}
 
 		addDevice("Device ID ", "541612052", 10, 20, 100, 20, 200);
 		addFinger(image1, 10, 80, 180, 200);
@@ -131,10 +135,13 @@ public class registerDesk implements ActionListener {
 		camPanel.setBounds(425, 130, 350, 300);
 		mainPanel.add(camPanel);
 
-		ImageIcon pImage = new ImageIcon(imageMgr.getImage("pp_" + jStudent.getString("user_id") + ".png"));
-		Image pimage1 = pImage.getImage();
-		Image pnewimg1 = pimage1.getScaledInstance(330,240,  Image.SCALE_SMOOTH);
-		pImage = new ImageIcon(pnewimg1);
+		ImageIcon pImage = new ImageIcon();
+		if(imageMgr.ifExists("pp_" + jStudent.getString("user_id") + ".png")) {
+			pImage = new ImageIcon(imageMgr.getImage("pp_" + jStudent.getString("user_id") + ".png"));
+			Image pimage1 = pImage.getImage();
+			Image pnewimg1 = pimage1.getScaledInstance(330,240,  Image.SCALE_SMOOTH);
+			pImage = new ImageIcon(pnewimg1);
+		}
 
 		addDesktop(10,30,330, 240);
 		addPhoto(pImage,10,30,330, 240);
@@ -255,19 +262,19 @@ public class registerDesk implements ActionListener {
 			String finger1Details = dev.scan(txfs.get(0).getText());
             msg.get(0).setText(finger1Details);
                         
-			if(finger1Details.contains("Scan quality is low.")){
+			if(finger1Details.contains("Scan quality is low.")) {
 			    System.out.println("Scan quality is low.");
 			    finger1Details = null;
-			}else if(finger1Details.contains("Device is not connected.")){
+			} else if(finger1Details.contains("Device is not connected.")) {
 			    System.out.println("Device is not connected.");
 			    finger1Details = null;
-			}else if(finger1Details.contains("Device not found.")){
+			} else if(finger1Details.contains("Device not found.")) {
                 System.out.println("Device not found.");
                 finger1Details = null;
-            }else if(finger1Details.contains("Device Timed Out")){
+            } else if(finger1Details.contains("Device Timed Out")) {
 			    System.out.println("Device Timed Out");
 			    finger1Details = null;
-			}else{
+			} else {
 				scan1Details = "Scan quality is Good.";
 
 				JSONObject jFingerScan = new JSONObject(finger1Details);

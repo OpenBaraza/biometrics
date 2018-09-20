@@ -26,6 +26,10 @@ public class imageManager {
 		String webdavPassword = cfgs.get("webdav_password");
 		wdv = new webdav(webdavPath, webdavUsername, webdavPassword);
 	}
+	
+	public boolean ifExists(String fileName) {
+		return wdv.fileExists(fileName);
+	}
 		
 	public BufferedImage saveImage(String imageStr, String fileName) {
 		BufferedImage img = null;

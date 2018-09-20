@@ -278,6 +278,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 			// Selected Row in the Registerd users in the second JTabbedPane called "Registred".
 			System.out.println("selected tab Index is: " + selectedIndex);
 			int aRow = tableReg.getSelectedRow();
+System.out.println("selected row is: " + aRow);
 			if ((aRow != -1) && (ev.getClickCount() == 2)) {
 				int index = tableReg.convertRowIndexToModel(aRow);
 				registerDesk rDesk = new registerDesk(tModel.getTitles(), tModel.getRowValues(index), dev);
@@ -395,10 +396,12 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		tableNon.revalidate();
 		
 		tModel.refresh(enrolment.getRegistred());
-		tableReg = new JTable(tModel);
+		tableReg.repaint();
+		tableReg.revalidate();
 
 		//Creating table for Inactive students
 		tINModel = new tableModel(fields, enrolment.getInActive());
-		tableIN = new JTable(tINModel);
+		tableIN.repaint();
+		tableIN.revalidate();
 	}
 }
