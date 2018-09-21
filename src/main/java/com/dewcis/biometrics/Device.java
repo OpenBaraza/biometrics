@@ -73,6 +73,14 @@ public class Device {
 	    String results = client.post(uri, jStudent.toString(), sessionId);
 	    return results;
 	}
+
+    //Verify user Finger Print with the biostar server Fingerprints
+	public String verifyScan(String deviceID, JSONObject jVerify) {
+		String uri = baseUrl + "/devices/"+deviceID+"/verify_fingerprint";
+		httpClient client = new httpClient(cfgs.get("domain"));
+		String results = client.post(uri, jVerify.toString(), sessionId);
+		return results;
+	}
     
     //Scanning fingerprint and getting the results
 	public String scan(String deviceID){
@@ -107,6 +115,23 @@ public class Device {
 
 		return results;
 	}
+
+	// Getting user Fingerprint list from the Biostar server
+	public String userFingerPrint(String user_id) {
+		String url = baseUrl + "/users"+user_id+"/fingerprint_templates";
+		String results = null;
+		
+		try {
+			URI uri = new URIBuilder(url).build();
+			httpClient client = new httpClient(cfgs.get("domain"));
+			results = client.get(uri, sessionId);
+		} catch (URISyntaxException ex) {
+			log.severe("URI Error " + ex);
+		}
+
+		return results;
+	}
+
 	
 	//Enrolling user scanned finger prints to the server
 	public String enroll(String user_id, JSONObject jenroll) {
