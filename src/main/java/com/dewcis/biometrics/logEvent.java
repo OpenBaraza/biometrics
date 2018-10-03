@@ -22,7 +22,7 @@ public class logEvent {
 
 	Device dev = null;
 
-	private String[] eventCodeName, logListcode = null;
+	private Vector<String> eventCodeName, logListcode;
 
 	public logEvent(Device dev) {
 		this.dev = dev;
@@ -37,21 +37,17 @@ public class logEvent {
 		JSONObject jsonObject = new JSONObject(referencResult);
 		JSONArray tsmresponse = (JSONArray) jsonObject.get("records");
 
-		ArrayList<String> list = new ArrayList<String>();
-		ArrayList<String> list1 = new ArrayList<String>();
+		Vector<String> eventCodeName = new Vector<String>();
+		Vector<String> logListcode = new Vector<String>();
 
 		JSONArray jEventcode = new JSONArray();
-		list.add("None");
-		list1.add("0000");
+		eventCodeName.add("None");
+		logListcode.add("0000");
 		for(int i=0; i<tsmresponse.length(); i++){
-			list.add(tsmresponse.getJSONObject(i).getString("description"));
-			list1.add(""+tsmresponse.getJSONObject(i).getInt("code")+"");
+			eventCodeName.add(tsmresponse.getJSONObject(i).getString("description"));
+			logListcode.add(""+tsmresponse.getJSONObject(i).getInt("code"));
 			jEventcode.put(tsmresponse.getJSONObject(i).getInt("code"));
 		}
-
-		eventCodeName = list.toArray(new String[0]);
-		logListcode = list1.toArray(new String[0]);
-
         
         //get available device ID list
 		String avalableDevice = dev.deviceList();
@@ -121,11 +117,11 @@ public class logEvent {
 		return rowData;
 	}
 
-	public String[] getEventCodeName() {
+	public Vector<String> getEventCodeName() {
 		return eventCodeName;
 	}
 
-	public String[] getLogListcode() {
+	public Vector<String> getLogListcode() {
 		return logListcode;
 	}
     

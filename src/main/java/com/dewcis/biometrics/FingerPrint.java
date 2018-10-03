@@ -29,12 +29,37 @@ public class FingerPrint {
 	
 	Device dev = null;
 
-	public void FingerPrint(Device dev) {
+	public FingerPrint(Device dev) {
 		this.dev = dev;
 	}
 	
-	public void scan() {
+	public JSONObject scan(String deviceId) {
+		String finger1Details = dev.scan(deviceId);
+
+System.out.println(finger1Details);
+		JSONObject jFingerScan = new JSONObject(finger1Details);
+		if(finger1Details.contains("Scan quality is low.")) {
+			System.out.println("Scan quality is low.");
+		} else if(finger1Details.contains("Device is not connected.")) {
+			System.out.println("Device is not connected.");
+		} else if(finger1Details.contains("Device not found.")) {
+			System.out.println("Device not found.");
+		} else if(finger1Details.contains("Device Timed Out")) {
+			System.out.println("Device Timed Out");
+		}
+		
+		return jFingerScan;
 	}
 	
+	public void verify(String deviceId) {
+		JSONObject jFingerScan = scan(deviceId);
+System.out.println("---------------");
+		
+		JSONObject jVerify = new JSONObject();
+		jVerify.put("security_level","DEFAULT");
+		jVerify.put("template0", jFingerScan.getString("template0"));
+		jVerify.put("template1", jFingerScan.getString("template1"));
+		String vResults = dev.verifyScan(deviceId, jVerify);
+	}
 }
 

@@ -49,7 +49,7 @@ public class verifyFingerPrint {
 						jVerify.put("security_level","DEFAULT");
 						jVerify.put("template0",template0);
 						jVerify.put("template1",template1);
-						String vResults = dev.verifyScan(deviceID,jVerify);
+						String vResults = dev.verifyScan(deviceID, jVerify);
 						if ("Processed Successfully".equals(vResults)) {
 							String userResults = dev.userDetails(user_id);
 							VerifyDesk ver = new VerifyDesk(userResults, dev);

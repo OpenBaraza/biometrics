@@ -66,7 +66,8 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	List<JTextField> txfs;
 	List<JComboBox> cmbs;
 	
-	Map<Integer, String> devList;
+	Vector<String> deviceNames;
+	Vector<Integer> deviceIds;
 	Map<String, String> fields;
 	List<String> fieldNames;
 	
@@ -81,13 +82,14 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	tableModel tModel, tNonRegModel, tINModel;
 	DefaultTableModel logModel;
 
-	String[] eventCodeName, logListcode;
+	Vector<String> eventCodeName, logListcode;
 
 	public mainDesk(Connection db) {
 		super(new BorderLayout());
 		this.db = db;
 		
-		devList = new HashMap<Integer, String>();
+		deviceNames = new Vector<String>();
+		deviceIds = new Vector<Integer>();
 
 		// Non Registred user panel
 		nonRegPanel = new JPanel(new BorderLayout());
@@ -136,7 +138,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		devicePanel.setBounds(5, 5, 500, 50);
 		verifyPanel.add(devicePanel);
 
-		addDevice("Device ID ", "541612052", 10, 20, 100, 20, 200);
+		addDevice("Device ID ", 10, 20, 100, 20, 200);
 
 		searchPanel = new JPanel(null);
 		searchPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Search Logs"));
@@ -225,14 +227,13 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		btns.add(btn);
 	}
 
-	public void addDevice(String fieldTitle, String fieldValue, int x, int y, int w, int h, int dw) {
+	public void addDevice(String fieldTitle, int x, int y, int w, int h, int dw) {
 		JLabel lbTitle = new JLabel(fieldTitle + " : ");
 		lbTitle.setBounds(x, y, w, h);
 		devicePanel.add(lbTitle);
-		
-		JComboBox cmbDevice = new JComboBox(fieldValue);
+				
+		JComboBox cmbDevice = new JComboBox(deviceNames);
 		cmbDevice.setBounds(x + w + 5, y, dw, h);
-		cmbDevice.setText(fieldValue);
 		devicePanel.add(cmbDevice);
 		cmbs.add(cmbDevice);
 	}
@@ -249,7 +250,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		txfs.add(tfDevice);
 	}
 
-	public void addCombox(String fieldTitle, String[] fieldValue, int x, int y, int w, int h, int dw) {
+	public void addCombox(String fieldTitle, Vector<String> fieldValue, int x, int y, int w, int h, int dw) {
 		JLabel lbTitle = new JLabel(fieldTitle + " : ");
 		lbTitle.setBounds(x, y, w, h);
 		searchPanel.add(lbTitle);
@@ -266,10 +267,9 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	
 		for(int i = 0; i < jRecord.length(); i++) {                                     
 			JSONObject jDev = jRecord.getJSONObject(i);
-			devList.put(jDev.getInt("id"), jDev.getString("name"));
+			deviceNames.add(jDev.getString("name"));
+			deviceIds.add(jDev.getInt("id"));
 		}
-
-		System.out.println("BASE 1010 : " + jResp.toString());
 	}
 	
 	public void mousePressed(MouseEvent ev) {}
@@ -316,6 +316,13 @@ System.out.println("selected row is: " + aRow);
 
 	public void actionPerformed(ActionEvent ev) {
 		if(ev.getActionCommand().equals("Verify")) {
+System.out.println("Selection index : " + cmbs.get(0).getSelectedIndex());
+			String deviceId = deviceIds.get(cmbs.get(0).getSelectedIndex()).toString();
+System.out.println("Device ID : " + deviceId);
+
+			FingerPrint fp = new FingerPrint(dev);
+
+		} else if(ev.getActionCommand().equals("Verifys")) {
 			Clock c = Clock.systemUTC();  
 			Duration d = Duration.ofSeconds(-15);  
 			Clock clock = Clock.offset(c, d);    
@@ -351,10 +358,10 @@ System.out.println("selected row is: " + aRow);
 			}
 		} else if(ev.getActionCommand().equals("Search")) {
 			String eventLOG = null;
-			int eventLogName = cmbs.get(0).getSelectedIndex();
+			int eventLogName = cmbs.get(1).getSelectedIndex();
 			
 			if(0 != eventLogName) {   
-				eventLOG = logListcode[eventLogName];
+				eventLOG = logListcode.get(eventLogName);
 				JSONArray jCode = new JSONArray();
 				jCode.put(eventLOG);
 
