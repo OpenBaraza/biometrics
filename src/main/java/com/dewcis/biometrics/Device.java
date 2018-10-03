@@ -181,7 +181,7 @@ public class Device {
 	//Getting avilable device list from the server
 	public String deviceList() {
 		String url = baseUrl + "/devices";
-		String results =null;
+		String results = "";
 		try {
 			URI uri = new URIBuilder(url)
 				.addParameter("group_id", "")

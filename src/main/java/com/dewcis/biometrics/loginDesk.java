@@ -96,7 +96,12 @@ public class loginDesk implements ActionListener {
 
 				mainDesk md = new mainDesk(db);
 				frame.getContentPane().add(md, BorderLayout.CENTER);
+				
+				// Repaint main panel
+				md.revalidate();
+				md.repaint();
 
+				// Repaint frame
 				frame.revalidate();
 				frame.repaint();
 			}

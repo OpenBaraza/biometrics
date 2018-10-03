@@ -66,6 +66,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	List<JTextField> txfs;
 	List<JComboBox> cmbs;
 	
+	Map<Integer, String> devList;
 	Map<String, String> fields;
 	List<String> fieldNames;
 	
@@ -85,6 +86,8 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	public mainDesk(Connection db) {
 		super(new BorderLayout());
 		this.db = db;
+		
+		devList = new HashMap<Integer, String>();
 
 		// Non Registred user panel
 		nonRegPanel = new JPanel(new BorderLayout());
@@ -105,11 +108,11 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		// Getting details from the config.txt from class base_url
 		cfgs = new Configs(db);
 		dev = new Device(cfgs.getConfigs(), null);
+		getDeviceList();
 
 		// Add students on table
 		getStudents();
-		//getLogs();
-		
+
 		logEvent getLogs = new logEvent(dev);
 		rowData = getLogs.getRowData();
 		columnNames = getLogs.getColumnNames();
@@ -227,11 +230,11 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		lbTitle.setBounds(x, y, w, h);
 		devicePanel.add(lbTitle);
 		
-		JTextField tfDevice = new JTextField();
-		tfDevice.setBounds(x + w + 5, y, dw, h);
-		tfDevice.setText(fieldValue);
-		devicePanel.add(tfDevice);
-		txfs.add(tfDevice);
+		JComboBox cmbDevice = new JComboBox(fieldValue);
+		cmbDevice.setBounds(x + w + 5, y, dw, h);
+		cmbDevice.setText(fieldValue);
+		devicePanel.add(cmbDevice);
+		cmbs.add(cmbDevice);
 	}
 
 	public void addSearch(String fieldTitle, String fieldValue, int x, int y, int w, int h, int dw) {
@@ -255,6 +258,18 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		cmbValues.setBounds(x + w + 5, y, dw, h);
 		searchPanel.add(cmbValues);
 		cmbs.add(cmbValues);
+	}
+	
+	public void getDeviceList() {	
+		JSONObject jResp = new JSONObject(dev.deviceList());
+		JSONArray jRecord = jResp.getJSONArray("records");
+	
+		for(int i = 0; i < jRecord.length(); i++) {                                     
+			JSONObject jDev = jRecord.getJSONObject(i);
+			devList.put(jDev.getInt("id"), jDev.getString("name"));
+		}
+
+		System.out.println("BASE 1010 : " + jResp.toString());
 	}
 	
 	public void mousePressed(MouseEvent ev) {}
