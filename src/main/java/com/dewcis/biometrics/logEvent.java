@@ -22,6 +22,7 @@ public class logEvent {
 
 	Device dev = null;
 
+	private JSONArray jEventcode;
 	private Vector<String> eventCodeName, logListcode;
 
 	public logEvent(Device dev) {
@@ -37,37 +38,40 @@ public class logEvent {
 		JSONObject jsonObject = new JSONObject(referencResult);
 		JSONArray tsmresponse = (JSONArray) jsonObject.get("records");
 
-		Vector<String> eventCodeName = new Vector<String>();
-		Vector<String> logListcode = new Vector<String>();
+		rowData = new Vector<Vector<String>>();
+		eventCodeName = new Vector<String>();
+		logListcode = new Vector<String>();
 
-		JSONArray jEventcode = new JSONArray();
+		jEventcode = new JSONArray();
 		eventCodeName.add("None");
 		logListcode.add("0000");
-		for(int i=0; i<tsmresponse.length(); i++){
+		for(int i=0; i<tsmresponse.length(); i++) {
 			eventCodeName.add(tsmresponse.getJSONObject(i).getString("description"));
 			logListcode.add(""+tsmresponse.getJSONObject(i).getInt("code"));
 			jEventcode.put(tsmresponse.getJSONObject(i).getInt("code"));
 		}
-        
+    }
+    
+    public void getMonthLogs() {
         //get available device ID list
 		String avalableDevice = dev.deviceList();
 
 		JSONObject jAvailable = new JSONObject(avalableDevice);
-		JSONArray aAvailable = (JSONArray) jAvailable.get("records");
+		JSONArray aAvailable = jAvailable.getJSONArray("records");
 
 		JSONObject jDevicecomp = new JSONObject();
 		JSONArray jDevicelist = new JSONArray();
-
+	
 		int j = 01;
-		if (aAvailable.length()==0) {
+		if (aAvailable.length() == 0) {
 			System.out.println("No avilable deviceList");
 			jDevicecomp.put("device_id", "0000");
 			jDevicecomp.put("end_datetime", YearMonth.now()+"-"+Month.from(LocalDate.now()).length(true)+"T23:59:00.00Z");
 			jDevicecomp.put("start_datetime", YearMonth.now()+"-0"+j+"T00:00:00.00Z");
 
 			jDevicelist.put(jDevicecomp);
-		}else if (aAvailable.length()!=0) {
-			for(int i=0; i<aAvailable.length(); i++){
+		} else {
+			for(int i=0; i<aAvailable.length(); i++) {
 				jDevicecomp.put("device_id", aAvailable.getJSONObject(i).getInt("id"));
 				jDevicecomp.put("end_datetime", YearMonth.now()+"-"+Month.from(LocalDate.now()).length(true)+"T23:59:00.00Z");
 				jDevicecomp.put("start_datetime", YearMonth.now()+"-0"+j+"T00:00:00.00Z");
@@ -88,14 +92,14 @@ public class logEvent {
 		JSONObject jLog = new JSONObject(eventLogView);
 		JSONArray aLog = (JSONArray) jLog.get("records");
 
-		rowData = new Vector<Vector<String>>();
-
+		rowData.clear();
 		for(int i=0; i<aLog.length(); i++){
 			Vector<String> row = new Vector<String>();  
 			row.add(aLog.getJSONObject(i).getString("datetime"));
 			row.add(aLog.getJSONObject(i).getJSONObject("device").getInt("id")+"");
 			row.add(aLog.getJSONObject(i).getJSONObject("device").getString("name"));
 			if(aLog.getJSONObject(i).has("user")) {
+System.out.println(aLog.getJSONObject(i).getJSONObject("user").toString());
 				row.add(aLog.getJSONObject(i).getJSONObject("user").getString("user_id"));
 			} else {
 				row.add(" ");
@@ -108,7 +112,41 @@ public class logEvent {
 			rowData.add(row);
        	}
 	}
+	
+	public void getLogs(String startTime, String endTime) {
+		JSONArray jLogDate = new JSONArray();
+		jLogDate.put(startTime);
+		jLogDate.put(endTime);
+		JSONObject jLogReq = new JSONObject();
+		jLogReq.put("datetime", jLogDate);
+		jLogReq.put("limit", 0);
+		jLogReq.put("offset", 0);
+System.out.println("Date : " + jLogReq.toString());
 
+		String vResults = dev.getEventLog(jLogReq);
+System.out.println(vResults);
+	}
+	
+	public void getLogs(String deviceId, String startTime, String endTime) {
+		JSONArray jEvent = new JSONArray();
+		JSONObject jEventDetails = new JSONObject();
+		jEventDetails.put("device_id", deviceId);
+		jEventDetails.put("end_datetime", endTime);
+		jEventDetails.put("start_datetime", startTime);
+		jEvent.put(jEventDetails);
+
+		JSONObject jSearchEvent = new JSONObject();
+		jSearchEvent.put("device_query_list", jEvent);
+		jSearchEvent.put("event_type_code_list", jEventcode);
+		jSearchEvent.put("limit", 0);
+		jSearchEvent.put("offset", 0);
+
+System.out.println(jSearchEvent.toString());
+		String eventLogs = dev.searchLogEvent(jSearchEvent);
+		
+System.out.println("\n\n" + eventLogs);
+	}
+	
 	public Vector<String> getColumnNames() {
 		return columnNames;
 	}

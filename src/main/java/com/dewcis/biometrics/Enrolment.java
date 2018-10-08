@@ -30,29 +30,32 @@ public class Enrolment {
 	private List<String> enrolledActive;
 	private List<String> enrolledInActive;
 	private Map<String, Vector<String>> students;
+	private Map<String, String> fingerPrints;
 	
 	public Enrolment() {
 		enrolledActive = new ArrayList<String>();
 		enrolledInActive = new ArrayList<String>();
 		students = new HashMap<String, Vector<String>>();
+		fingerPrints = new HashMap<String, String>();
 	}
 
 	public void usersList(Device dev){
 		enrolledActive.clear();
 		enrolledInActive.clear();
+		fingerPrints.clear();
 
 		String results = dev.usersList();
-System.out.println("BASE 2010  : ");
 
 		if(results != null) {
 			JSONObject jResults = new JSONObject(results);
 			JSONArray jresponse = (JSONArray) jResults.get("records");
 
 			for(int i=0; i<jresponse.length(); i++) {
+				String userId = jresponse.getJSONObject(i).getString("user_id");
 				if (jresponse.getJSONObject(i).getString("status").equals("AC"))
-					enrolledActive.add(jresponse.getJSONObject(i).getString("user_id"));
+					enrolledActive.add(userId);
 				else if (jresponse.getJSONObject(i).getString("status").equals("IN"))
-					enrolledInActive.add(jresponse.getJSONObject(i).getString("user_id"));
+					enrolledInActive.add(userId);
 			}
 		}
 	}

@@ -47,8 +47,8 @@ public class verifyFingerPrint {
 						String template1 = jFingettemp.getJSONArray("fingerprint_template_list").getJSONObject(0).getString("template0");
 						JSONObject jVerify = new JSONObject();
 						jVerify.put("security_level","DEFAULT");
-						jVerify.put("template0",template0);
-						jVerify.put("template1",template1);
+						jVerify.put("template0", template0);
+						jVerify.put("template1", template1);
 						String vResults = dev.verifyScan(deviceID, jVerify);
 						if ("Processed Successfully".equals(vResults)) {
 							String userResults = dev.userDetails(user_id);
@@ -57,8 +57,8 @@ public class verifyFingerPrint {
 							String template2 = jFingettemp.getJSONArray("fingerprint_template_list").getJSONObject(1).getString("template0");
 							JSONObject jVerify2 = new JSONObject();
 							jVerify2.put("security_level","DEFAULT");
-							jVerify2.put("template0",template0);
-							jVerify2.put("template1",template2);
+							jVerify2.put("template0", template0);
+							jVerify2.put("template1", template2);
 							String vResults2 = dev.verifyScan(deviceID,jVerify2);
 							if ("Processed Successfully".equals(vResults2)) {
 								String userResults = dev.userDetails(user_id);

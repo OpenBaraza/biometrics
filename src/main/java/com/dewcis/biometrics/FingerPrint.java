@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Date;
+
+import java.text.SimpleDateFormat;
 
 import java.sql.Connection;
 import java.sql.Statement;
@@ -28,38 +31,56 @@ public class FingerPrint {
 	Logger log = Logger.getLogger(FingerPrint.class.getName());
 	
 	Device dev = null;
+	logEvent devLogs = null;
 
-	public FingerPrint(Device dev) {
+	public FingerPrint(Device dev, logEvent devLogs) {
 		this.dev = dev;
+		this.devLogs = devLogs;
 	}
 	
 	public JSONObject scan(String deviceId) {
 		String finger1Details = dev.scan(deviceId);
 
-System.out.println(finger1Details);
 		JSONObject jFingerScan = new JSONObject(finger1Details);
-		if(finger1Details.contains("Scan quality is low.")) {
-			System.out.println("Scan quality is low.");
-		} else if(finger1Details.contains("Device is not connected.")) {
-			System.out.println("Device is not connected.");
-		} else if(finger1Details.contains("Device not found.")) {
-			System.out.println("Device not found.");
-		} else if(finger1Details.contains("Device Timed Out")) {
-			System.out.println("Device Timed Out");
+
+		for(String scanKeys : jFingerScan.keySet())
+			System.out.println(scanKeys);
+			
+		if(jFingerScan.has("template0")) {
+			System.out.println(jFingerScan.getString("template0"));
 		}
 		
 		return jFingerScan;
 	}
 	
 	public void verify(String deviceId) {
-		JSONObject jFingerScan = scan(deviceId);
+		JSONObject jFinger0 = scan(deviceId);
+		JSONObject jFinger1 = scan(deviceId);
 System.out.println("---------------");
+	
+		if(jFinger0.has("template0") && jFinger1.has("template0")) {
+			JSONObject jVerify = new JSONObject();
+			jVerify.put("security_level","DEFAULT");
+			jVerify.put("template0", jFinger0.getString("template0"));
+			jVerify.put("template1", jFinger1.getString("template0"));
+			String vResults = dev.verifyScan(deviceId, jVerify);
+System.out.println(vResults);
+
+			getLogs(deviceId);
+		}
+	}
+	
+	public void getLogs(String deviceId) {
+		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		Date now = new Date();
+		Date before = new Date(now.getTime()  - 10000000);
+		String startDate = sdfDate.format(before) + ".00Z";
+		String endDate = sdfDate.format(now) + ".00Z";
 		
-		JSONObject jVerify = new JSONObject();
-		jVerify.put("security_level","DEFAULT");
-		jVerify.put("template0", jFingerScan.getString("template0"));
-		jVerify.put("template1", jFingerScan.getString("template1"));
-		String vResults = dev.verifyScan(deviceId, jVerify);
+		devLogs.getLogs(startDate, endDate);
+		
+		devLogs.getLogs(deviceId, startDate, endDate);
+		
 	}
 }
 

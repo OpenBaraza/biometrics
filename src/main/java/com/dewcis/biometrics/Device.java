@@ -117,8 +117,8 @@ public class Device {
 	}
 
 	// Getting user Fingerprint list from the Biostar server
-	public String userFingerPrint(String user_id) {
-		String url = baseUrl + "/users"+user_id+"/fingerprint_templates";
+	public String userFingerPrint(String userId) {
+		String url = baseUrl + "/users/" + userId + "/fingerprint_templates";
 		String results = null;
 		
 		try {
@@ -211,6 +211,14 @@ public class Device {
 			log.severe("URI Error " + ex);
 		}
 		return results;
+	}
+	
+	//Getting mothly log events occured
+	public String getEventLog(JSONObject jEventlog){
+	    String uri = baseUrl + "/monitoring/event_log/search";
+	    httpClient client = new httpClient(cfgs.get("domain"));
+	    String results = client.post(uri, jEventlog.toString(), sessionId);
+	    return results;
 	}
 	
 	//Getting mothly log events occured

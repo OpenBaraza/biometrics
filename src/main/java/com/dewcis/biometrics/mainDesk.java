@@ -58,6 +58,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	Enrolment enrolment = null;
 	Configs cfgs = null;
 	Device dev = null;
+	logEvent getLogs = null;
 	
 	Vector<Vector<String>> rowData;
 	Vector<String> columnNames;
@@ -115,7 +116,8 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		// Add students on table
 		getStudents();
 
-		logEvent getLogs = new logEvent(dev);
+		getLogs = new logEvent(dev);
+		getLogs.getMonthLogs();
 		rowData = getLogs.getRowData();
 		columnNames = getLogs.getColumnNames();
 
@@ -135,19 +137,18 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		verifyPanel = new JPanel(null);
 		devicePanel = new JPanel(null);
 		devicePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Verify User"));
-		devicePanel.setBounds(5, 5, 500, 50);
+		devicePanel.setBounds(5, 5, 700, 50);
 		verifyPanel.add(devicePanel);
 
-		addDevice("Device ID ", 10, 20, 100, 20, 200);
+		addDevice("Device ID ", 10, 20, 100, 20, 400);
 
 		searchPanel = new JPanel(null);
 		searchPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Search Logs"));
 		searchPanel.setBounds(5, 100, 800, 150);
 		verifyPanel.add(searchPanel);
 
-		addSearch("Device ID ", "541612052", 10, 20, 120, 20, 300);
-		addSearch("Start Date ", "2018-08-01", 10, 50, 120, 20, 300);
-		addSearch("End Date ", "2018-08-31",10, 80, 120, 20, 300);
+		addSearch("Start Date ", "2018-10-04", 10, 50, 120, 20, 300);
+		addSearch("End Date ", "2018-10-04",10, 80, 120, 20, 300);
 		addCombox("Event names ", eventCodeName, 10, 110, 120, 20, 300);
 
 		// Butons panel
@@ -156,8 +157,9 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		buttonPanel.setBounds(5, 300, 800, 70);
 		verifyPanel.add(buttonPanel);
 
-		addButton("Verify", 350, 20, 75, 25, true);
-		addButton("Search", 450, 20, 75, 25, true);
+		addButton("Verify", 150, 20, 150, 25, true);
+		addButton("Search", 350, 20, 150, 25, true);
+		addButton("Logs", 550, 20, 150, 25, true);
 
 		tabbedPane.addTab("Verify User / Search logs", verifyPanel);
 		super.add(tabbedPane, BorderLayout.CENTER);
@@ -316,12 +318,17 @@ System.out.println("selected row is: " + aRow);
 
 	public void actionPerformed(ActionEvent ev) {
 		if(ev.getActionCommand().equals("Verify")) {
-System.out.println("Selection index : " + cmbs.get(0).getSelectedIndex());
 			String deviceId = deviceIds.get(cmbs.get(0).getSelectedIndex()).toString();
 System.out.println("Device ID : " + deviceId);
 
-			FingerPrint fp = new FingerPrint(dev);
+			FingerPrint fp = new FingerPrint(dev, getLogs);
+			fp.verify(deviceId);
+		} else if(ev.getActionCommand().equals("Logs")) {
+			String deviceId = deviceIds.get(cmbs.get(0).getSelectedIndex()).toString();
+System.out.println("Device ID : " + deviceId);
 
+			FingerPrint fp = new FingerPrint(dev, getLogs);
+			fp.getLogs(deviceId);
 		} else if(ev.getActionCommand().equals("Verifys")) {
 			Clock c = Clock.systemUTC();  
 			Duration d = Duration.ofSeconds(-15);  
@@ -331,7 +338,7 @@ System.out.println("Device ID : " + deviceId);
 			JSONObject jEventDetails = new JSONObject();
 			jEventDetails.put("device_id", txfs.get(0).getText());
 			jEventDetails.put("end_datetime", c.instant());
-			jEventDetails.put("start_datetime",clock.instant());
+			jEventDetails.put("start_datetime", clock.instant());
 			jEvent.put(jEventDetails);
 
 			JSONArray jEventCode = new JSONArray();
@@ -359,17 +366,18 @@ System.out.println("Device ID : " + deviceId);
 		} else if(ev.getActionCommand().equals("Search")) {
 			String eventLOG = null;
 			int eventLogName = cmbs.get(1).getSelectedIndex();
+			String deviceId = deviceIds.get(cmbs.get(0).getSelectedIndex()).toString();
 			
-			if(0 != eventLogName) {   
+			if(0 != eventLogName) {
 				eventLOG = logListcode.get(eventLogName);
 				JSONArray jCode = new JSONArray();
-				jCode.put(eventLOG);
+				for(String logCode : logListcode) jCode.put(logCode);
 
 				JSONArray jEvent = new JSONArray();
 				JSONObject jEventDetails = new JSONObject();
-				jEventDetails.put("device_id", txfs.get(1).getText());
-				jEventDetails.put("end_datetime", txfs.get(3).getText()+"T23:59:00.00Z");
-				jEventDetails.put("start_datetime", txfs.get(2).getText()+"T00:00:00.00Z");
+				jEventDetails.put("device_id", deviceId);
+				jEventDetails.put("end_datetime", txfs.get(1).getText()+"T23:59:00.00Z");
+				jEventDetails.put("start_datetime", txfs.get(0).getText()+"T00:00:00.00Z");
 				jEvent.put(jEventDetails);
 
 				JSONObject jSearchEvent = new JSONObject();
@@ -377,8 +385,10 @@ System.out.println("Device ID : " + deviceId);
 				jSearchEvent.put("event_type_code_list", jCode);
 				jSearchEvent.put("limit", 0);
 				jSearchEvent.put("offset", 0);
+System.out.println(jSearchEvent.toString());
 
 				String eventlogView = dev.searchLogEvent(jSearchEvent);
+System.out.println(eventlogView);
 				searchLogDesk srch = new searchLogDesk(eventlogView);
 			} else if (0==eventLogName) {
 				JOptionPane.showMessageDialog(null, "You can't Search For None Log Events");

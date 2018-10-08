@@ -43,7 +43,7 @@ public class searchLogDesk implements ActionListener {
 			row.add(""+aLog.getJSONObject(i).getJSONObject("device").getInt("id")+"");
 			row.add(""+aLog.getJSONObject(i).getJSONObject("device").getString("name")+"");
 			if(aLog.getJSONObject(i).has("user")) {
-				row.add(""+aLog.getJSONObject(i).getJSONObject("user").getInt("user_id")+"");
+				row.add(""+aLog.getJSONObject(i).getJSONObject("user").getString("user_id")+"");
 			} else {
 				row.add(" ");
 			} if(aLog.getJSONObject(i).has("user")&&aLog.getJSONObject(i).getJSONObject("user").has("name")) {
