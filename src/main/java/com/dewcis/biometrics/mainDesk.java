@@ -58,7 +58,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	Enrolment enrolment = null;
 	Configs cfgs = null;
 	Device dev = null;
-	logEvent getLogs = null;
+	EventLogs eventLogs = null;
 	
 	Vector<Vector<String>> rowData;
 	Vector<String> columnNames;
@@ -116,13 +116,13 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		// Add students on table
 		getStudents();
 
-		getLogs = new logEvent(dev);
-		getLogs.getMonthLogs();
-		rowData = getLogs.getRowData();
-		columnNames = getLogs.getColumnNames();
+		eventLogs = new EventLogs(dev);
+		eventLogs.getMonthLogs();
+		rowData = eventLogs.getRowData();
+		columnNames = eventLogs.getColumnNames();
 
-		eventCodeName = getLogs.getEventCodeName();
-		logListcode = getLogs.getLogListcode();
+		eventCodeName = eventLogs.getEventCodeName();
+		logListcode = eventLogs.getLogListcode();
 		
 		logModel = new DefaultTableModel(rowData,columnNames);
 		tableLog = new JTable(logModel);
@@ -321,14 +321,16 @@ System.out.println("selected row is: " + aRow);
 			String deviceId = deviceIds.get(cmbs.get(0).getSelectedIndex()).toString();
 System.out.println("Device ID : " + deviceId);
 
-			FingerPrint fp = new FingerPrint(dev, getLogs);
-			fp.verify(deviceId);
+			JSONArray jEvents = eventLogs.getLogs(deviceId, 1);
+			if(jEvents.length() > 0) {
+				JSONObject jLastEvent = jEvents.getJSONObject(jEvents.length() - 1);
+System.out.println(jLastEvent.toString());
+			}
 		} else if(ev.getActionCommand().equals("Logs")) {
 			String deviceId = deviceIds.get(cmbs.get(0).getSelectedIndex()).toString();
 System.out.println("Device ID : " + deviceId);
 
-			FingerPrint fp = new FingerPrint(dev, getLogs);
-			fp.getLogs(deviceId);
+			JSONArray jEvents = eventLogs.getLogs(deviceId, 60*24);
 		} else if(ev.getActionCommand().equals("Verifys")) {
 			Clock c = Clock.systemUTC();  
 			Duration d = Duration.ofSeconds(-15);  
