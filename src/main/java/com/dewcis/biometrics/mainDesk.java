@@ -321,6 +321,11 @@ System.out.println("selected row is: " + aRow);
 			String deviceId = deviceIds.get(cmbs.get(0).getSelectedIndex()).toString();
 System.out.println("Device ID : " + deviceId);
 
+			FingerPrint fp = new FingerPrint(dev);
+			JSONObject fp1 = fp.scan(deviceId);
+			JSONObject fp2 = fp.scan(deviceId);
+			fp.verify(deviceId, fp1.getString("template0"), fp2.getString("template0"));
+
 			JSONArray jEvents = eventLogs.getLogs(deviceId, 1);
 			if(jEvents.length() > 0) {
 				JSONObject jLastEvent = jEvents.getJSONObject(jEvents.length() - 1);

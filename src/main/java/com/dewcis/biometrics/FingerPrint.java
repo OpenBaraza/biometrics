@@ -64,6 +64,15 @@ public class FingerPrint {
 		return aFP;
 	}
 	
+	public JSONArray getFingerPrint(String userId) {
+		JSONObject jFingerScan = new JSONObject();
+		
+		FingerPrint fp = new FingerPrint(dev);
+		JSONObject fp1 = fp.scan(deviceId);
+		JSONObject fp2 = fp.scan(deviceId);
+		fp.verify(deviceId, fp1.getString("template0"), fp2.getString("template0"));
+	}
+	
 	public void verify(String deviceId, String template0, String template1) {
 		JSONObject jVerify = new JSONObject();
 		jVerify.put("security_level", "DEFAULT");
