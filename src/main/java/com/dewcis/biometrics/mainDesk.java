@@ -330,7 +330,10 @@ System.out.println(jLastEvent.toString());
 			String deviceId = deviceIds.get(cmbs.get(0).getSelectedIndex()).toString();
 System.out.println("Device ID : " + deviceId);
 
-			JSONArray jEvents = eventLogs.getLogs(deviceId, 60*24);
+			//FingerPrint fp = new FingerPrint(dev);
+			//fp.scan(deviceId);
+
+			JSONArray jEvents = eventLogs.getLogs(deviceId, 30);
 		} else if(ev.getActionCommand().equals("Verifys")) {
 			Clock c = Clock.systemUTC();  
 			Duration d = Duration.ofSeconds(-15);  

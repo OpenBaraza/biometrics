@@ -171,6 +171,18 @@ System.out.println("\n\n" + vResults);
 		return getLogs(deviceId, startDate, endDate);
 	}
 	
+	public JSONArray getLogs(int minutes) {
+		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		sdfDate.setTimeZone(TimeZone.getTimeZone("GMT"));
+		
+		Date now = new Date();
+		Date before = new Date(now.getTime()  - (1000 * 60 * minutes));
+		String startDate = sdfDate.format(before) + ".00Z";
+		String endDate = sdfDate.format(now) + ".00Z";
+		
+		return getLogs(startDate, endDate);
+	}
+	
 	public Vector<String> getColumnNames() {
 		return columnNames;
 	}

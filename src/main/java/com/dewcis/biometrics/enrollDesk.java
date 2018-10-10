@@ -345,6 +345,9 @@ public class enrollDesk implements ActionListener {
 				//System.out.println("BASE 2010 Finger Prints : " + jfinger.toString());
 				
 				String enResults = dev.enroll(jStudent.getString("user_id"), jfinger);
+				
+System.out.println("BASE 2010 : " + enResults);
+				
 				msg.get(0).setText(enResults);
 				//Enabling buttons and disabling
 				btns.get(3).setEnabled(false);
