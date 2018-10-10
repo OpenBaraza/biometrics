@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 
 import java.util.logging.Logger;
 
+import java.util.Date;
 import java.util.Vector;
 import java.util.List;
 import java.util.ArrayList;
@@ -30,13 +31,18 @@ public class Enrolment {
 	private List<String> enrolledActive;
 	private List<String> enrolledInActive;
 	private Map<String, Vector<String>> students;
-	private Map<String, String> fingerPrints;
+	private Map<String, JSONArray> fingerPrints;
+	
+	JSONArray lastFP;
+	FingerPrint fp;
 	
 	public Enrolment() {
 		enrolledActive = new ArrayList<String>();
 		enrolledInActive = new ArrayList<String>();
 		students = new HashMap<String, Vector<String>>();
-		fingerPrints = new HashMap<String, String>();
+		fingerPrints = new HashMap<String, JSONArray>();
+		
+		JSONArray lastFP = new JSONArray();
 	}
 
 	public void usersList(Device dev){
@@ -45,6 +51,8 @@ public class Enrolment {
 		fingerPrints.clear();
 
 		String results = dev.usersList();
+		
+		fp = new FingerPrint(dev);
 
 		if(results != null) {
 			JSONObject jResults = new JSONObject(results);
@@ -56,6 +64,12 @@ public class Enrolment {
 					enrolledActive.add(userId);
 				else if (jresponse.getJSONObject(i).getString("status").equals("IN"))
 					enrolledInActive.add(userId);
+					
+				JSONArray aFP = fp.getFingerPrint(userId);
+				if(aFP.length()==2) {
+					fingerPrints.put(userId, aFP);
+					lastFP = aFP;
+				}
 			}
 		}
 	}
@@ -100,6 +114,16 @@ public class Enrolment {
 			if(ias != null) iasv.add(ias);
 		}
 		return iasv;
+	}
+	
+	public void verify() {
+System.out.println("Start " + new Date());
+System.out.println("Size " + fingerPrints.size());
+		for(String userId : fingerPrints.keySet()) {
+			fp.verify("541612052", fingerPrints.get(userId).getString(0), lastFP.getString(0));
+			fp.verify("541612052", fingerPrints.get(userId).getString(1), lastFP.getString(0));
+		}
+System.out.println("Stop " + new Date());
 	}
 }
 

@@ -102,7 +102,6 @@ public class httpClient {
 				message = content;
 			} else if(statusCode != 200) {
 				JSONObject jObject = new JSONObject(content);
-				JOptionPane.showMessageDialog(null, jObject.getString("message"));
 				message = content;
 			}
 		} catch (IOException ex) {

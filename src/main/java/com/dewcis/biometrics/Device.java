@@ -117,7 +117,7 @@ public class Device {
 	}
 
 	// Getting user Fingerprint list from the Biostar server
-	public String userFingerPrint(String userId) {
+	public String getFingerPrint(String userId) {
 		String url = baseUrl + "/users/" + userId + "/fingerprint_templates";
 		String results = null;
 		

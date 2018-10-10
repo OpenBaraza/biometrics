@@ -47,6 +47,31 @@ public class FingerPrint {
 		
 		return jFingerScan;
 	}
+	
+	public JSONArray getFingerPrint(String userId) {
+		JSONArray aFP = new JSONArray();
+		String sFP = dev.getFingerPrint(userId);
+		if(sFP != null) {
+			System.out.println("\n" + sFP);
+			JSONObject jFP = new JSONObject(sFP);
+			if(jFP.has("fingerprint_template_list")) {
+				if(jFP.getJSONArray("fingerprint_template_list").length()==2) {
+					aFP.put(jFP.getJSONArray("fingerprint_template_list").getJSONObject(0).getString("template0"));
+					aFP.put(jFP.getJSONArray("fingerprint_template_list").getJSONObject(1).getString("template0"));
+				}
+			}
+		}
+		return aFP;
+	}
+	
+	public void verify(String deviceId, String template0, String template1) {
+		JSONObject jVerify = new JSONObject();
+		jVerify.put("security_level", "DEFAULT");
+		jVerify.put("template0", template0);
+		jVerify.put("template1", template1);
+		String vResults = dev.verifyScan(deviceId, jVerify);
 
+System.out.println(vResults);
+	}
 }
 

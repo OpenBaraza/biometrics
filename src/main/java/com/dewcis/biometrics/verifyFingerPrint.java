@@ -38,11 +38,11 @@ public class verifyFingerPrint {
 			while (verificationResults!=null){
 				for(int i=0; i<jresponse.length(); i++) {
 					String user_id = jresponse.getJSONObject(i).getString("user_id");
-					String userFingerDetails = dev.userFingerPrint(user_id);
+					String userFingerDetails = dev.getFingerPrint(user_id);
 					if (userFingerDetails==null) {
 						System.out.println("No user Finger print");
 					}else if (userFingerDetails!=null) {
-						System.out.println("Avilabele user Finger print" + userFingerDetails);
+						System.out.println("Available user Finger print" + userFingerDetails);
 						JSONObject jFingettemp = new JSONObject(userFingerDetails);
 						String template1 = jFingettemp.getJSONArray("fingerprint_template_list").getJSONObject(0).getString("template0");
 						JSONObject jVerify = new JSONObject();

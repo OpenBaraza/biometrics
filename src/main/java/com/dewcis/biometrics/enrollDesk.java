@@ -316,7 +316,7 @@ public class enrollDesk implements ActionListener {
 				scan2Details = "Scan quality is Good.";
 
 				JSONObject jFingerScan = new JSONObject(finger2Details);
-				String template0 = (String) jFingerScan.get("template0");
+				String template0 = jFingerScan.getString("template0");
 				String template1 = template0;
 				
 				jfingerItem2.put("is_prepare_for_duress", false);

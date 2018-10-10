@@ -104,7 +104,6 @@ public class EventLogs {
 			row.add(aLog.getJSONObject(i).getJSONObject("device").getInt("id")+"");
 			row.add(aLog.getJSONObject(i).getJSONObject("device").getString("name"));
 			if(aLog.getJSONObject(i).has("user")) {
-System.out.println(aLog.getJSONObject(i).getJSONObject("user").toString());
 				row.add(aLog.getJSONObject(i).getJSONObject("user").getString("user_id"));
 			} else {
 				row.add(" ");
