@@ -131,7 +131,6 @@ public class Device {
 
 		return results;
 	}
-
 	
 	//Enrolling user scanned finger prints to the server
 	public String enroll(String user_id, JSONObject jenroll) {

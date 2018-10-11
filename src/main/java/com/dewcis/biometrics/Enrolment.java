@@ -33,7 +33,6 @@ public class Enrolment {
 	private Map<String, Vector<String>> students;
 	private Map<String, JSONArray> fingerPrints;
 	
-	JSONArray lastFP;
 	FingerPrint fp;
 	
 	public Enrolment() {
@@ -41,11 +40,9 @@ public class Enrolment {
 		enrolledInActive = new ArrayList<String>();
 		students = new HashMap<String, Vector<String>>();
 		fingerPrints = new HashMap<String, JSONArray>();
-		
-		JSONArray lastFP = new JSONArray();
 	}
 
-	public void usersList(Device dev){
+	public void usersList(Device dev, boolean fpList) {
 		enrolledActive.clear();
 		enrolledInActive.clear();
 		fingerPrints.clear();
@@ -64,11 +61,10 @@ public class Enrolment {
 					enrolledActive.add(userId);
 				else if (jresponse.getJSONObject(i).getString("status").equals("IN"))
 					enrolledInActive.add(userId);
-					
-				JSONArray aFP = fp.getFingerPrint(userId);
-				if(aFP.length()==2) {
-					fingerPrints.put(userId, aFP);
-					lastFP = aFP;
+				
+				if(fpList) {
+					JSONArray aFP = fp.getFingerPrint(userId);
+					if(aFP.length() == 2) fingerPrints.put(userId, aFP);
 				}
 			}
 		}
@@ -116,14 +112,11 @@ public class Enrolment {
 		return iasv;
 	}
 	
-	public void verify() {
-System.out.println("Start " + new Date());
-System.out.println("Size " + fingerPrints.size());
+	public void verify(String FPTemplate) {
 		for(String userId : fingerPrints.keySet()) {
-			fp.verify("541612052", fingerPrints.get(userId).getString(0), lastFP.getString(0));
-			fp.verify("541612052", fingerPrints.get(userId).getString(1), lastFP.getString(0));
+			fp.verify("541612052", fingerPrints.get(userId).getString(0), FPTemplate);
+			fp.verify("541612052", fingerPrints.get(userId).getString(1), FPTemplate);
 		}
-System.out.println("Stop " + new Date());
 	}
 }
 

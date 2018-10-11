@@ -65,7 +65,7 @@ public class registerDesk implements ActionListener {
 
 	imageManager imageMgr = null;
 
-	public registerDesk(Vector<String> titles, Vector<String> rowData, Device dev) {
+	public registerDesk(Vector<String> titles, Vector<String> rowData, Device dev, String deviceId) {
 		this.dev = dev;
 		
 		imageMgr = new imageManager(dev.getConfigs());
@@ -99,7 +99,7 @@ public class registerDesk implements ActionListener {
 		addButton("Enroll", 330, 20, 75, 25, false);
 		addButton("Open Camera", 430, 20, 120, 25, false);
 		addButton("Take Photo", 580, 20, 120, 25, false);
-		addButton("Inactivate", 720, 20, 120, 25, false);
+		addButton("In Activate", 720, 20, 120, 25, false);
 		addButton("Close", 720, 60, 120, 25, true);
 		
 		// Fingerprint panel
@@ -123,7 +123,7 @@ public class registerDesk implements ActionListener {
 			image2 = new ImageIcon(fnewimg2);
 		}
 
-		addDevice("Device ID ", "541612052", 10, 20, 100, 20, 200);
+		addDevice("Device ID ", deviceId, 10, 20, 100, 20, 200);
 		addFinger(image1, 10, 80, 180, 200);
 		addFinger(image2, 200, 80, 180, 200);
 
@@ -145,7 +145,6 @@ public class registerDesk implements ActionListener {
 
 		addDesktop(10,30,330, 240);
 		addPhoto(pImage,10,30,330, 240);
-
 
 		// Status panel
 		msg = new ArrayList<JLabel>();

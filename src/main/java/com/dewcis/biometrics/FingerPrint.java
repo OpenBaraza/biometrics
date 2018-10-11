@@ -48,11 +48,24 @@ public class FingerPrint {
 		return jFingerScan;
 	}
 	
+	public Map<String, String> scanVerify(String deviceId) {
+		Map<String, String> fingerScan = new HashMap<String, String>();
+		
+		FingerPrint fp = new FingerPrint(dev);
+		JSONObject fp1 = fp.scan(deviceId);
+		JSONObject fp2 = fp.scan(deviceId);
+		fingerScan.put("template0", fp1.getString("template0"));
+		fingerScan.put("template_image0", fp1.getString("template_image0"));
+		fingerScan.put("template1", fp2.getString("template0"));
+		verify(deviceId, fp1.getString("template0"), fp2.getString("template0"));
+		
+		return fingerScan;
+	}
+	
 	public JSONArray getFingerPrint(String userId) {
 		JSONArray aFP = new JSONArray();
 		String sFP = dev.getFingerPrint(userId);
 		if(sFP != null) {
-			System.out.println("\n" + sFP);
 			JSONObject jFP = new JSONObject(sFP);
 			if(jFP.has("fingerprint_template_list")) {
 				if(jFP.getJSONArray("fingerprint_template_list").length()==2) {
@@ -63,16 +76,7 @@ public class FingerPrint {
 		}
 		return aFP;
 	}
-	
-	public JSONArray getFingerPrint(String userId) {
-		JSONObject jFingerScan = new JSONObject();
-		
-		FingerPrint fp = new FingerPrint(dev);
-		JSONObject fp1 = fp.scan(deviceId);
-		JSONObject fp2 = fp.scan(deviceId);
-		fp.verify(deviceId, fp1.getString("template0"), fp2.getString("template0"));
-	}
-	
+
 	public void verify(String deviceId, String template0, String template1) {
 		JSONObject jVerify = new JSONObject();
 		jVerify.put("security_level", "DEFAULT");

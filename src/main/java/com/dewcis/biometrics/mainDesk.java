@@ -195,7 +195,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
         
         // Get device and registered list
 		enrolment = new Enrolment();
-		enrolment.usersList(dev);
+		enrolment.usersList(dev, false);
 		enrolment.getStudents(db, mySql, fields);
         
 		//Creating table for Non Registered students.
@@ -281,6 +281,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 
 	public void mouseClicked(MouseEvent ev) {
 		// for getting the current JTabbedPane that is active
+		String deviceId = deviceIds.get(cmbs.get(0).getSelectedIndex()).toString();
 		int selectedIndex = tabbedPane.getSelectedIndex();
 		if(selectedIndex == 0) {
 			// Selected Row in the Non Registerd users in the first JTabbedPane called "Non Registred".
@@ -288,7 +289,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 			int bRow = tableNon.getSelectedRow();
 			if ((bRow != -1) && (ev.getClickCount() == 2)) {
 				int index = tableNon.convertRowIndexToModel(bRow);
-				enrollDesk eDesk = new enrollDesk(tNonRegModel.getTitles(), tNonRegModel.getRowValues(index), dev);
+				enrollDesk eDesk = new enrollDesk(tNonRegModel.getTitles(), tNonRegModel.getRowValues(index), dev, deviceId);
 				filter();		// Filter
 			}
 		} else if(selectedIndex == 1) {
@@ -298,7 +299,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 System.out.println("selected row is: " + aRow);
 			if ((aRow != -1) && (ev.getClickCount() == 2)) {
 				int index = tableReg.convertRowIndexToModel(aRow);
-				registerDesk rDesk = new registerDesk(tModel.getTitles(), tModel.getRowValues(index), dev);
+				registerDesk rDesk = new registerDesk(tModel.getTitles(), tModel.getRowValues(index), dev, deviceId);
 			}
 		} else if(selectedIndex == 2) {
 			// Selected Row in the Active/Inactive users in the third JTabbedPane called "Activate / Inactivate Users ".
@@ -321,11 +322,6 @@ System.out.println("selected row is: " + aRow);
 			String deviceId = deviceIds.get(cmbs.get(0).getSelectedIndex()).toString();
 System.out.println("Device ID : " + deviceId);
 
-			FingerPrint fp = new FingerPrint(dev);
-			JSONObject fp1 = fp.scan(deviceId);
-			JSONObject fp2 = fp.scan(deviceId);
-			fp.verify(deviceId, fp1.getString("template0"), fp2.getString("template0"));
-
 			JSONArray jEvents = eventLogs.getLogs(deviceId, 1);
 			if(jEvents.length() > 0) {
 				JSONObject jLastEvent = jEvents.getJSONObject(jEvents.length() - 1);
@@ -336,8 +332,6 @@ System.out.println(jLastEvent.toString());
 System.out.println("Device ID : " + deviceId);
 
 			JSONArray jEvents = eventLogs.getLogs(deviceId, 30);
-			
-			enrolment.verify();
 		} else if(ev.getActionCommand().equals("Verifys")) {
 			Clock c = Clock.systemUTC();  
 			Duration d = Duration.ofSeconds(-15);  
@@ -430,7 +424,7 @@ System.out.println(eventlogView);
 
 	public void refresh() {
 		enrolment.getStudents(db, mySql, fields);
-		enrolment.usersList(dev);
+		enrolment.usersList(dev, false);
 		
 		tNonRegModel.refresh(enrolment.getUnRegistred());
 		tableNon.repaint();

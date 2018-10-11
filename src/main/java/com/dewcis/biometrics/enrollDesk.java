@@ -73,7 +73,7 @@ public class enrollDesk implements ActionListener {
 	Image fimage1 = null;
 	Image fNewimg1 = null;
 
-	public enrollDesk(Vector<String> titles, Vector<String> rowData, Device dev) {
+	public enrollDesk(Vector<String> titles, Vector<String> rowData, Device dev, String deviceId) {
 		this.dev = dev;
 
 		imageMgr = new imageManager(dev.getConfigs());
@@ -111,6 +111,7 @@ public class enrollDesk implements ActionListener {
 		addButton("Open Camera", 450, 20, 120, 25, false);
 		addButton("Take Photo", 600, 20, 120, 25, false);
 		addButton("Close", 750, 20, 75, 25, true);
+		addButton("Cancel", 850, 20, 75, 25, false);
 		
 		// Fingerprint panel
 		lbls = new ArrayList<JLabel>();
@@ -121,7 +122,7 @@ public class enrollDesk implements ActionListener {
 
 		fImage1 = new ImageIcon(fNewimg1);
 
-		addDevice("Device ID ", "541612052", 10, 20, 100, 20, 200);
+		addDevice("Device ID", deviceId, 10, 20, 100, 20, 200);
 		addFinger(fImage1,10,80,180,200);
 		addFinger(fImage1,200,80,180,200);
 
@@ -231,20 +232,24 @@ public class enrollDesk implements ActionListener {
 
 		if(ev.getActionCommand().equals("Register")) {
 			rgResults = dev.addUser(jStudent);
-			msg.get(0).setText(rgResults);
 			JSONObject jObject = new JSONObject(rgResults);
+			msg.get(0).setText(rgResults);
 			System.out.println("BASE REGISTER : " + rgResults);
 
 			if("Created successfully".equals(jObject.getString("message"))){
 				//Enabling buttons and disabling
 				btns.get(0).setEnabled(false);
 				btns.get(1).setEnabled(true);
+				btns.get(6).setEnabled(false);
 			}
 		}
 
 		if(ev.getActionCommand().equals("Scan 1")) {
-
 			fImage1 = new ImageIcon(fNewimg1);
+			lbls.get(0).setIcon(fImage1);
+			
+			FingerPrint fp = new FingerPrint(dev);
+			fp.scanVerify(tfDevice.getText());
 
 			String finger1Details = dev.scan(tfDevice.getText());
 			msg.get(0).setText(finger1Details);
@@ -252,19 +257,19 @@ public class enrollDesk implements ActionListener {
 			if(finger1Details.contains("Scan quality is low.")) {
 				System.out.println("Scan quality is low.");
 				finger1Details=null;
-				lbls.get(0).setIcon(fImage1);
+				
 			} else if(finger1Details.contains("Device is not connected.")) {
 				System.out.println("Device is not connected.");
 				finger1Details=null;
-				lbls.get(0).setIcon(fImage1);
+
 			} else if(finger1Details.contains("Device not found.")) {
 				System.out.println("Device not found.");
 				finger1Details=null;
-				lbls.get(0).setIcon(fImage1);
+
 			} else if(finger1Details.contains("Device Timed Out")) {
 				System.out.println("Device Timed Out");
 				finger1Details=null;
-				lbls.get(0).setIcon(fImage1);
+
 			} else {
 				scan1Details = "Scan quality is Good.";
 
