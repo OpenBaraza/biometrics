@@ -35,29 +35,43 @@ public class FingerPrint {
 	
 	public JSONObject scan(String deviceId) {
 		String finger1Details = dev.scan(deviceId);
-
 		JSONObject jFingerScan = new JSONObject(finger1Details);
-
-		for(String scanKeys : jFingerScan.keySet())
-			System.out.println(scanKeys);
-			
-		if(jFingerScan.has("template0")) {
-			System.out.println(jFingerScan.getString("template0"));
-		}
-		
+		for(String scanKeys : jFingerScan.keySet()) System.out.println(scanKeys);
 		return jFingerScan;
 	}
 	
+	// Scan and verify finger print
 	public Map<String, String> scanVerify(String deviceId) {
 		Map<String, String> fingerScan = new HashMap<String, String>();
 		
 		FingerPrint fp = new FingerPrint(dev);
 		JSONObject fp1 = fp.scan(deviceId);
+		if(fp1.has("status_code")) {
+			fingerScan.put("status_code", fp1.getString("status_code"));
+			fingerScan.put("message", fp1.getString("message"));
+			return fingerScan;
+		}		
+		
 		JSONObject fp2 = fp.scan(deviceId);
+		if(fp2.has("status_code")) {
+			fingerScan.put("status_code", fp2.getString("status_code"));
+			fingerScan.put("message", fp2.getString("message"));
+			return fingerScan;
+		}
+		
+		JSONObject vs = verify(deviceId, fp1.getString("template0"), fp2.getString("template0"));
+		if(vs.has("status_code")) {
+			if(!vs.getString("status_code").equals("SUCCESSFUL")) {
+				fingerScan.put("status_code", vs.getString("status_code"));
+				fingerScan.put("message", vs.getString("message"));
+				return fingerScan;
+			}
+		}
+		
+		fingerScan.put("message", "Scan quality is Good.");
 		fingerScan.put("template0", fp1.getString("template0"));
 		fingerScan.put("template_image0", fp1.getString("template_image0"));
 		fingerScan.put("template1", fp2.getString("template0"));
-		verify(deviceId, fp1.getString("template0"), fp2.getString("template0"));
 		
 		return fingerScan;
 	}
@@ -77,14 +91,16 @@ public class FingerPrint {
 		return aFP;
 	}
 
-	public void verify(String deviceId, String template0, String template1) {
+	public JSONObject verify(String deviceId, String template0, String template1) {
 		JSONObject jVerify = new JSONObject();
 		jVerify.put("security_level", "DEFAULT");
 		jVerify.put("template0", template0);
 		jVerify.put("template1", template1);
 		String vResults = dev.verifyScan(deviceId, jVerify);
-
-System.out.println(vResults);
+System.out.println(vResults.toString());
+		
+		JSONObject jResults = new JSONObject(vResults);	
+		return jResults;
 	}
 }
 

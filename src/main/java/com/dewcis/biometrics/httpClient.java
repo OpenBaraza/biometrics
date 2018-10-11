@@ -172,11 +172,9 @@ public class httpClient {
 			int statusCode = httpResponse.getStatusLine().getStatusCode();
 			JSONObject jObject = new JSONObject(content);
 			if(statusCode== 200){ 
-				message= content;
-				JOptionPane.showMessageDialog(null,(String) jObject.get("message"));
+				message = content;
 			} else if(statusCode != 200) {
-				JOptionPane.showMessageDialog(null,(String) jObject.get("message"));
-				message= content;
+				message = content;
 			}
 		} catch (IOException ex) {
 			System.out.println("IO Error : " + ex);
