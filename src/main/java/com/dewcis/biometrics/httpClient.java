@@ -158,7 +158,7 @@ public class httpClient {
 		pt.setHeader("Content-type", contentType);
 
 		CookieStore cookieStore = new BasicCookieStore();
-		BasicClientCookie cookie = new BasicClientCookie("bs-cloud-session-id",snID);
+		BasicClientCookie cookie = new BasicClientCookie("bs-cloud-session-id", snID);
 		cookie.setDomain(domain);
 		cookie.setPath("/");
 		cookieStore.addCookie(cookie);
@@ -183,7 +183,7 @@ public class httpClient {
 		return message;
     }
 
-    public String delete(String url,String snID) {
+    public String delete(String url, String snID) {
 		String content = "";
 		String message = null;
 
@@ -205,7 +205,7 @@ public class httpClient {
 			content = EntityUtils.toString(httpResponse.getEntity());
 			int statusCode = httpResponse.getStatusLine().getStatusCode();
 
-			if(statusCode == 200) { 
+			if(statusCode == 200) {
 				message = content;
 			} else if(statusCode != 200) {
 				JSONObject jObject = new JSONObject(content);

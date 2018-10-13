@@ -171,10 +171,19 @@ public class Device {
 	}
 	
 	//Deleting user from the device
-	public void userDelDevice(String user_id, String deviceID) {
+	public String delUserDevice(String user_id, String deviceID) {
 		String uri = baseUrl + "/devices/" + deviceID + "/users/" + user_id;
 		httpClient del = new httpClient(cfgs.get("domain"));
-		del.delete(uri, sessionId);
+		String results = del.delete(uri, sessionId);
+		return results;
+	}
+	
+	//Deleting user from the sever
+	public String delUser(String user_id) {
+		String uri = baseUrl + "/users/" + user_id;
+		httpClient del = new httpClient(cfgs.get("domain"));
+		String results = del.delete(uri, sessionId);
+		return results;
 	}
 	
 	//Getting avilable device list from the server

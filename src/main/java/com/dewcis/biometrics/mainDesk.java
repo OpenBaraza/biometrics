@@ -285,7 +285,6 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		int selectedIndex = tabbedPane.getSelectedIndex();
 		if(selectedIndex == 0) {
 			// Selected Row in the Non Registerd users in the first JTabbedPane called "Non Registred".
-			System.out.println("selected tab Index is: " + selectedIndex);
 			int bRow = tableNon.getSelectedRow();
 			if ((bRow != -1) && (ev.getClickCount() == 2)) {
 				int index = tableNon.convertRowIndexToModel(bRow);
@@ -294,24 +293,19 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 			}
 		} else if(selectedIndex == 1) {
 			// Selected Row in the Registerd users in the second JTabbedPane called "Registred".
-			System.out.println("selected tab Index is: " + selectedIndex);
 			int aRow = tableReg.getSelectedRow();
-System.out.println("selected row is: " + aRow);
 			if ((aRow != -1) && (ev.getClickCount() == 2)) {
 				int index = tableReg.convertRowIndexToModel(aRow);
-				registerDesk rDesk = new registerDesk(tModel.getTitles(), tModel.getRowValues(index), dev, deviceId);
+				updateDesk uDesk = new updateDesk(tModel.getTitles(), tModel.getRowValues(index), dev, deviceId);
 			}
 		} else if(selectedIndex == 2) {
 			// Selected Row in the Active/Inactive users in the third JTabbedPane called "Activate / Inactivate Users ".
-			System.out.println("selected tab Index is: " + selectedIndex);
 			int cRow = tableIN.getSelectedRow();
 			if ((cRow != -1) && (ev.getClickCount() == 2)) {
 				int index = tableIN.convertRowIndexToModel(cRow);
 				Vector<String> rowData = tINModel.getRowValues(index);
 				String user_id = rowData.get(2);
-				
 				String userResults = dev.userDetails(user_id);
-
 				activateDesk aDesk = new activateDesk(tINModel.getTitles(), userResults, dev);
 			}
 		}

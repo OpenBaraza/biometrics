@@ -38,8 +38,8 @@ import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
 import com.github.sarxos.webcam.WebcamResolution;
 
-public class registerDesk implements ActionListener {
-	Logger log = Logger.getLogger(enrollDesk.class.getName());
+public class updateDesk implements ActionListener {
+	Logger log = Logger.getLogger(updateDesk.class.getName());
 
 	Connection db = null;
 	Device dev = null;
@@ -60,12 +60,12 @@ public class registerDesk implements ActionListener {
 
 	JSONObject jfinger = new JSONObject();
 	JSONArray jarrayFinger = new JSONArray();
-	JSONObject jfingerItem = new JSONObject();
+	JSONObject jfingerItem1 = new JSONObject();
 	JSONObject jfingerItem2 = new JSONObject();
 
 	imageManager imageMgr = null;
 
-	public registerDesk(Vector<String> titles, Vector<String> rowData, Device dev, String deviceId) {
+	public updateDesk(Vector<String> titles, Vector<String> rowData, Device dev, String deviceId) {
 		this.dev = dev;
 		
 		imageMgr = new imageManager(dev.getConfigs());
@@ -75,7 +75,7 @@ public class registerDesk implements ActionListener {
 		// Fields panel with fields
 		detailPanel = new JPanel(null);
 		detailPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Details"));
-		detailPanel.setBounds(5, 5, 800, 100);
+		detailPanel.setBounds(5, 5, 900, 100);
 		mainPanel.add(detailPanel);
 		
 		addField(titles.get(0), rowData.get(0), 10, 10, 120, 20, 200);
@@ -89,18 +89,18 @@ public class registerDesk implements ActionListener {
 		// Butons panel
 		buttonPanel = new JPanel(null);
 		buttonPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Functions"));
-		buttonPanel.setBounds(5, 450, 850, 100);
+		buttonPanel.setBounds(5, 450, 900, 70);
 		mainPanel.add(buttonPanel);
 		
 		btns = new ArrayList<JButton>();
-		addButton("Update", 10, 20, 100, 25, true);
-		addButton("Scan 1", 130, 20, 75, 25, false);
-		addButton("Scan 2", 230, 20, 75, 25, false);
-		addButton("Enroll", 330, 20, 75, 25, false);
-		addButton("Open Camera", 430, 20, 120, 25, false);
-		addButton("Take Photo", 580, 20, 120, 25, false);
-		addButton("In Activate", 720, 20, 120, 25, false);
-		addButton("Close", 720, 60, 120, 25, true);
+		addButton("Update", 10, 20, 90, 25, true);
+		addButton("Scan 1", 120, 20, 90, 25, false);
+		addButton("Scan 2", 220, 20, 90, 25, false);
+		addButton("Enroll", 320, 20, 90, 25, false);
+		addButton("Camera", 420, 20, 90, 25, false);
+		addButton("Photo", 520, 20, 90, 25, false);
+		addButton("Deactivate", 620, 20, 120, 25, false);
+		addButton("Close", 750, 20, 90, 25, true);
 		
 		// Fingerprint panel
 		txfs = new ArrayList<JTextField>();
@@ -109,12 +109,15 @@ public class registerDesk implements ActionListener {
 		fpPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Finger Prints"));
 		fpPanel.setBounds(5, 130, 400, 300);
 		mainPanel.add(fpPanel);
+		
+		String fpFile1 = "fp_" + jStudent.getString("user_id") + "_t1.png";
+		String fpFile2 = "fp_" + jStudent.getString("user_id") + "_t2.png";
 
 		ImageIcon image1 = new ImageIcon();
 		ImageIcon image2 = new ImageIcon();
-		if(imageMgr.ifExists("fp_" + jStudent.getString("user_id") + "_t1.png")) {
-			image1 = new ImageIcon(imageMgr.getImage("fp_" + jStudent.getString("user_id") + "_t1.png"));
-			image2 = new ImageIcon(imageMgr.getImage("fp_" + jStudent.getString("user_id") + "_t2.png"));
+		if(imageMgr.ifExists(fpFile1) && imageMgr.ifExists(fpFile2)) {
+			image1 = new ImageIcon(imageMgr.getImage(fpFile1));
+			image2 = new ImageIcon(imageMgr.getImage(fpFile2));
 			Image fimage1 = image1.getImage();
 			Image fimage2 = image2.getImage();
 			Image fnewimg1 = fimage1.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
@@ -122,7 +125,7 @@ public class registerDesk implements ActionListener {
 			image1 = new ImageIcon(fnewimg1);
 			image2 = new ImageIcon(fnewimg2);
 		}
-
+				
 		addDevice("Device ID ", deviceId, 10, 20, 100, 20, 200);
 		addFinger(image1, 10, 80, 180, 200);
 		addFinger(image2, 200, 80, 180, 200);
@@ -143,14 +146,14 @@ public class registerDesk implements ActionListener {
 			pImage = new ImageIcon(pnewimg1);
 		}
 
-		addDesktop(10,30,330, 240);
-		addPhoto(pImage,10,30,330, 240);
+		addDesktop(10, 30, 330, 240);
+		addPhoto(pImage, 10, 30, 330, 240);
 
 		// Status panel
 		msg = new ArrayList<JLabel>();
 		statusPanel = new JPanel(null);
 		statusPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Status"));
-		statusPanel.setBounds(5, 580, 850, 70);
+		statusPanel.setBounds(5, 550, 900, 70);
 		mainPanel.add(statusPanel);
 
 		addMessage("Message", 10, 10, 120, 20, 600);
@@ -158,7 +161,7 @@ public class registerDesk implements ActionListener {
 		// Load on main form
 		eFrame = new JFrame("Enroll");
 		eDialog = new JDialog(eFrame , "Enroll User", true);
-		eDialog.setSize(900, 700);
+		eDialog.setSize(910, 700);
 		eDialog.getContentPane().add(mainPanel, BorderLayout.CENTER);
 		eDialog.setVisible(true);
 	}
@@ -185,7 +188,6 @@ public class registerDesk implements ActionListener {
 	}
 
 	public void addFinger(ImageIcon fingerTemplate, int x, int y, int w, int h) {
-
 		JLabel lbFinger = new JLabel();
 		lbFinger.setBounds(x, y, w, h);
 		lbFinger.setIcon(fingerTemplate);
@@ -195,7 +197,6 @@ public class registerDesk implements ActionListener {
 	}
 
 	public void addPhoto(ImageIcon photo,int x, int y, int w, int h) {
-
 		JLabel photoView = new JLabel();
 		photoView.setBounds(x, y, w, h);
 		photoView.setIcon(photo);
@@ -217,7 +218,6 @@ public class registerDesk implements ActionListener {
 	}
 	
 	public void addButton(String btTitle, int x, int y, int w, int h, boolean enabled) {
-		
 		JButton btn = new JButton(btTitle);
 		btn.setBounds(x, y, w, h);
 		buttonPanel.add(btn);
@@ -236,55 +236,25 @@ public class registerDesk implements ActionListener {
 	}
 	
 	public void actionPerformed(ActionEvent ev) {
-		if(ev.getActionCommand().equals("Close")) {
-			eDialog.dispose();
-		}
-
-		if(ev.getActionCommand().equals("Inactivate")) {
-			jStudent.remove("status");
-			jStudent.put("status", "IN");
-			dev.acinUser(jStudent.getString("user_id"), jStudent);
-			btns.get(6).setEnabled(false);
-			
-		}
-
 		if(ev.getActionCommand().equals("Update")) {
-            msg.get(0).setText("Update");
+			msg.get(0).setText("Update");
 			btns.get(0).setEnabled(false);
 			btns.get(1).setEnabled(true);
 			btns.get(2).setEnabled(true);
-            btns.get(4).setEnabled(true);
-            btns.get(6).setEnabled(true);
-		}
+			btns.get(4).setEnabled(true);
+			btns.get(6).setEnabled(true);
+		} else if(ev.getActionCommand().equals("Scan 1")) {
+   			FingerPrint fp = new FingerPrint(dev);
+			Map<String, String> fpm = fp.scanVerify(txfs.get(0).getText());
+			msg.get(0).setText(fpm.get("message"));
+			System.out.println(fpm.get("message"));
 
-		if(ev.getActionCommand().equals("Scan 1")) {
-			String finger1Details = dev.scan(txfs.get(0).getText());
-            msg.get(0).setText(finger1Details);
-                        
-			if(finger1Details.contains("Scan quality is low.")) {
-			    System.out.println("Scan quality is low.");
-			    finger1Details = null;
-			} else if(finger1Details.contains("Device is not connected.")) {
-			    System.out.println("Device is not connected.");
-			    finger1Details = null;
-			} else if(finger1Details.contains("Device not found.")) {
-                System.out.println("Device not found.");
-                finger1Details = null;
-            } else if(finger1Details.contains("Device Timed Out")) {
-			    System.out.println("Device Timed Out");
-			    finger1Details = null;
-			} else {
-				scan1Details = "Scan quality is Good.";
-
-				JSONObject jFingerScan = new JSONObject(finger1Details);
-				String template0 = jFingerScan.getString("template0");
-				String template1 = template0;
+			if(!fpm.containsKey("status_code")) {
+				jfingerItem1.put("is_prepare_for_duress", false);
+				jfingerItem1.put("template0", fpm.get("template0"));
+				jfingerItem1.put("template1", fpm.get("template1"));
 				
-				jfingerItem.put("is_prepare_for_duress", false);
-				jfingerItem.put("template0", template0);
-				jfingerItem.put("template1", template1);
-				
-				BufferedImage sImage = imageMgr.saveImage(jFingerScan.getString("template_image0"), "fp_" + jStudent.getString("user_id") + "_t1.png");
+				BufferedImage sImage = imageMgr.saveImage(fpm.get("template_image0"), "fp_" + jStudent.getString("user_id") + "_t1.png");
 				ImageIcon imageF1 = new ImageIcon(sImage);
 				Image imgF1 = imageF1.getImage();
 				Image newF1 = imgF1.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
@@ -292,36 +262,18 @@ public class registerDesk implements ActionListener {
 			    
 			    lbls.get(0).setIcon(imageF1);
 			}
-		}
-
-		if(ev.getActionCommand().equals("Scan 2")) {
-			String finger2Details = dev.scan(txfs.get(0).getText());
-			msg.get(0).setText(finger2Details);
-				
-			if(finger2Details.contains("Scan quality is low.")){
-				System.out.println("Scan quality is low.");
-				finger2Details = null;
-			}else if(finger2Details.contains("Device is not connected.")){
-				System.out.println("Device is not connected.");
-				finger2Details = null;
-			}else if(finger2Details.contains("Device not found.")){
-				System.out.println("Device not found.");
-				finger2Details = null;
-			}else if(finger2Details.contains("Device Timed Out")){
-				System.out.println("Device Timed Out");
-				finger2Details = null;
-			} else {
-				scan2Details = "Scan quality is Good.";
-
-				JSONObject jFingerScan = new JSONObject(finger2Details);
-				String template0 = jFingerScan.getString("template0");
-				String template1 = template0;
-				
+		} else if(ev.getActionCommand().equals("Scan 2")) {
+			FingerPrint fp = new FingerPrint(dev);
+			Map<String, String> fpm = fp.scanVerify(txfs.get(0).getText());
+			msg.get(0).setText(fpm.get("message"));
+			System.out.println(fpm.get("message"));
+			
+			if(!fpm.containsKey("status_code")) {
 				jfingerItem2.put("is_prepare_for_duress", false);
-				jfingerItem2.put("template0", template0);
-				jfingerItem2.put("template1", template1);
+				jfingerItem2.put("template0", fpm.get("template0"));
+				jfingerItem2.put("template1", fpm.get("template1"));
 				
-				BufferedImage sImage = imageMgr.saveImage(jFingerScan.getString("template_image0"), "fp_" + jStudent.getString("user_id") + "_t2.png");
+				BufferedImage sImage = imageMgr.saveImage(fpm.get("template_image0"), "fp_" + jStudent.getString("user_id") + "_t2.png");
 				ImageIcon imageF2 = new ImageIcon(sImage);
 				Image imgF2 = imageF2.getImage();
 				Image newF2 = imgF2.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
@@ -330,20 +282,23 @@ public class registerDesk implements ActionListener {
 				lbls.get(1).setIcon(imageF2);
 				btns.get(3).setEnabled(true);
 			}
-		}
-
-		if(ev.getActionCommand().equals("Enroll")) {
-			if(!scan1Details.isEmpty() && !scan2Details.isEmpty()){
-				jarrayFinger.put(jfingerItem);
+		} else if(ev.getActionCommand().equals("Enroll")) {
+			if(jfingerItem1.has("template0") && jfingerItem2.has("template0")) {
+				jarrayFinger.put(jfingerItem1);
 				jarrayFinger.put(jfingerItem2);
 				jfinger.put("fingerprint_template_list", jarrayFinger);
-				String enResults =dev.enroll(jStudent.getString("user_id"), jfinger);
-                                
-				msg.get(0).setText(enResults);
+				String enResults = dev.enroll(jStudent.getString("user_id"), jfinger);
+				
+				JSONObject jResults = new JSONObject(enResults);
+System.out.println("BASE 2010 : " + enResults);
+				
+				msg.get(0).setText(jResults.getString("message"));
+				
+				btns.get(1).setEnabled(false);
+				btns.get(2).setEnabled(false);
+				btns.get(3).setEnabled(false);
 			}
-		}
-
-		if(ev.getActionCommand().equals("Open Camera")){
+		} else if(ev.getActionCommand().equals("Camera")) {
 			Dimension[] nonStandardResolutions = new Dimension[] {WebcamResolution.HD.getSize(),};
 			Webcam webcam = Webcam.getDefault();
 
@@ -378,9 +333,7 @@ public class registerDesk implements ActionListener {
 				JOptionPane.showMessageDialog(null,"No webcam detected");
 				msg.get(0).setText("No webcam detected");
 			}
-		}
-
-		if(ev.getActionCommand().equals("Take Photo")){
+		} else if(ev.getActionCommand().equals("Photo")) {
 			BufferedImage photoTaken = dev.takePhoto(jStudent.getString("user_id"));
 
 			if (photoTaken!=null) {
@@ -397,8 +350,20 @@ public class registerDesk implements ActionListener {
 				msg.get(0).setText("Photo Taken Successfully");
 				lblPhoto.get(0).setVisible(true);
 				lblPhoto.get(0).setIcon(pImage);
-            }   
-        }
+			}   
+		} else if(ev.getActionCommand().equals("Deactivate")) {
+			jStudent.remove("status");
+			jStudent.put("status", "IN");
+			String enResults = dev.acinUser(jStudent.getString("user_id"), jStudent);
+			
+			JSONObject jResults = new JSONObject(enResults);
+System.out.println("BASE 2010 : " + enResults);
+			
+			btns.get(3).setEnabled(false);
+			btns.get(6).setEnabled(false);
+		} else if(ev.getActionCommand().equals("Close")) {
+			eDialog.dispose();
+		}
 	}
 
 	public void addJstudent(Vector<String> rowData) {       

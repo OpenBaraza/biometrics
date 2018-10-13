@@ -77,7 +77,7 @@ public class enrollDesk implements ActionListener {
 		imageMgr = new imageManager(dev.getConfigs());
 		fImage1 = new ImageIcon(imageMgr.getImage("ftemplate1.png"));
 		fimage1 = fImage1.getImage();
-		fNewimg1 = fimage1.getScaledInstance(180,200,  Image.SCALE_SMOOTH);
+		fNewimg1 = fimage1.getScaledInstance(180, 200, Image.SCALE_SMOOTH);
 		
 		mainPanel = new JPanel(null);
 		
@@ -109,7 +109,7 @@ public class enrollDesk implements ActionListener {
 		addButton("Photo", 420, 20, 90, 25, false);
 		addButton("Enroll", 520, 20, 90, 25, false);
 		addButton("Close", 620, 20, 90, 25, true);
-		addButton("Cancel", 720, 20, 90, 25, false);
+		addButton("Delete", 720, 20, 90, 25, false);
 		
 		// Fingerprint panel
 		lbls = new ArrayList<JLabel>();
@@ -174,7 +174,6 @@ public class enrollDesk implements ActionListener {
 	}
 
 	public void addFinger(ImageIcon fingerTemplate, int x, int y, int w, int h) {
-
 		JLabel lbFinger = new JLabel();
 		lbFinger.setBounds(x, y, w, h);
 		lbFinger.setIcon(fingerTemplate);
@@ -184,7 +183,6 @@ public class enrollDesk implements ActionListener {
 	}
 
 	public void addPhoto(int x, int y, int w, int h) {
-
 		JLabel photoView = new JLabel();
 		photoView.setBounds(x, y, w, h);
 		photoView.setBorder(new LineBorder(Color.black, 2));
@@ -204,7 +202,6 @@ public class enrollDesk implements ActionListener {
 	}
 	
 	public void addButton(String btTitle, int x, int y, int w, int h, boolean enabled) {
-		
 		JButton btn = new JButton(btTitle);
 		btn.setBounds(x, y, w, h);
 		buttonPanel.add(btn);
@@ -356,8 +353,6 @@ public class enrollDesk implements ActionListener {
 				jarrayFinger.put(jfingerItem2);
 				jfinger.put("fingerprint_template_list", jarrayFinger);
 				
-				//System.out.println("BASE 2010 Finger Prints : " + jfinger.toString());
-				
 				String enResults = dev.enroll(jStudent.getString("user_id"), jfinger);
 				JSONObject jResults = new JSONObject(enResults);
 System.out.println("BASE 2010 : " + enResults);
@@ -372,8 +367,14 @@ System.out.println("BASE 2010 : " + enResults);
 			}
 		} else if(ev.getActionCommand().equals("Close")) {
 			eDialog.dispose();
-		} else if(ev.getActionCommand().equals("Cancel")) {
-			eDialog.dispose();
+		} else if(ev.getActionCommand().equals("Delete")) {
+			String msg = "Are yuo sure you want delete the created record you have created?";
+			int dialogResult = JOptionPane.showConfirmDialog (null, msg, "Warning", JOptionPane.YES_NO_OPTION);
+			if(dialogResult == JOptionPane.YES_OPTION) {
+				String enResults = dev.delUser(jStudent.getString("user_id"));
+System.out.println("BASE 2010 : " + enResults);
+				eDialog.dispose();
+			}
 		}
 		
 	}
