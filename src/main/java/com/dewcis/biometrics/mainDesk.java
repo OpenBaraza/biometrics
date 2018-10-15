@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Image;
 import java.awt.Color;
+import java.awt.GridLayout;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
@@ -76,7 +77,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	JTabbedPane searchPane = new JTabbedPane();
 	
 	JPanel nonRegPanel, regPanel, verifyPanel, acInPanel, logPanel, filterPanel;
-	JPanel detailPanel, buttonPanel, fpPanel, camPanel, statusPanel, devicePanel, searchPanel;
+	JPanel devicePanel, searchPanel, buttonPanel, studentPanel, statusPanel;
 	JTable tableReg, tableNon, tableIN,	tableLog;
 	JTextField filterData;
 	JComboBox fieldList, filterList;
@@ -135,31 +136,34 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		cmbs = new ArrayList<JComboBox>();
 
 		verifyPanel = new JPanel(null);
+		
+		// Device panel for selecting device
 		devicePanel = new JPanel(null);
-		devicePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Verify User"));
-		devicePanel.setBounds(5, 5, 700, 50);
-		verifyPanel.add(devicePanel);
-
+		addPanel(devicePanel, "Verify User", 5, 5, 800, 50);
 		addDevice("Device ID ", 10, 20, 100, 20, 400);
 
-		searchPanel = new JPanel(null);
-		searchPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Search Logs"));
-		searchPanel.setBounds(5, 100, 800, 150);
-		verifyPanel.add(searchPanel);
-
-		addSearch("Start Date ", "2018-10-04", 10, 50, 120, 20, 300);
-		addSearch("End Date ", "2018-10-04",10, 80, 120, 20, 300);
-		addCombox("Event names ", eventCodeName, 10, 110, 120, 20, 300);
+		// Search panel for enter search parameters
+		searchPanel = new JPanel(new GridLayout(0, 4));
+		addSearch("Start Date ", "2018-10-04");
+		addSearch("End Date ", "2018-10-04");
+		addCombox("Event names ", eventCodeName);
+		logPanel.add(searchPanel, BorderLayout.PAGE_END);
 
 		// Butons panel
 		buttonPanel = new JPanel(null);
-		buttonPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Functions"));
-		buttonPanel.setBounds(5, 300, 800, 70);
-		verifyPanel.add(buttonPanel);
-
+		addPanel(buttonPanel, "Functions", 5, 200, 800, 70);
 		addButton("Verify", 150, 20, 150, 25, true);
 		addButton("Search", 350, 20, 150, 25, true);
 		addButton("Logs", 550, 20, 150, 25, true);
+		
+		// Student details
+		studentPanel = new JPanel(null);
+		addPanel(studentPanel, "Student Details", 5, 280, 800, 300);
+		
+		// Status log panel
+		statusPanel = new JPanel(null);
+		addPanel(statusPanel, "Status", 5, 590, 800, 100);
+
 
 		tabbedPane.addTab("Verify User / Search logs", verifyPanel);
 		super.add(tabbedPane, BorderLayout.CENTER);
@@ -219,6 +223,12 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		JScrollPane scrollPaneInAc = new JScrollPane(tableIN);
 		acInPanel.add(scrollPaneInAc, BorderLayout.CENTER);
 	}
+	
+	public void addPanel(JPanel nPanel, String btTitle, int x, int y, int w, int h) {
+		nPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), btTitle));
+		nPanel.setBounds(x, y, w, h);
+		verifyPanel.add(nPanel);
+	}
 
 	public void addButton(String btTitle, int x, int y, int w, int h, boolean enabled) {
 		JButton btn = new JButton(btTitle);
@@ -240,25 +250,21 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		cmbs.add(cmbDevice);
 	}
 
-	public void addSearch(String fieldTitle, String fieldValue, int x, int y, int w, int h, int dw) {
+	public void addSearch(String fieldTitle, String fieldValue) {
 		JLabel lbTitle = new JLabel(fieldTitle + " : ");
-		lbTitle.setBounds(x, y, w, h);
 		searchPanel.add(lbTitle);
 		
 		JTextField tfDevice = new JTextField();
-		tfDevice.setBounds(x + w + 5, y, dw, h);
 		tfDevice.setText(fieldValue);
 		searchPanel.add(tfDevice);
 		txfs.add(tfDevice);
 	}
 
-	public void addCombox(String fieldTitle, Vector<String> fieldValue, int x, int y, int w, int h, int dw) {
+	public void addCombox(String fieldTitle, Vector<String> fieldValue) {
 		JLabel lbTitle = new JLabel(fieldTitle + " : ");
-		lbTitle.setBounds(x, y, w, h);
 		searchPanel.add(lbTitle);
 		
 		JComboBox cmbValues = new JComboBox(fieldValue);
-		cmbValues.setBounds(x + w + 5, y, dw, h);
 		searchPanel.add(cmbValues);
 		cmbs.add(cmbValues);
 	}
@@ -316,7 +322,8 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 			String deviceId = deviceIds.get(cmbs.get(0).getSelectedIndex()).toString();
 System.out.println("Device ID : " + deviceId);
 
-			JSONArray jEvents = eventLogs.getLogs(deviceId, 1);
+			JSONArray jEvents = eventLogs.getLogs(deviceId, 60*24*3);
+System.out.println(jEvents.length());
 			if(jEvents.length() > 0) {
 				JSONObject jLastEvent = jEvents.getJSONObject(jEvents.length() - 1);
 System.out.println(jLastEvent.toString());
@@ -326,40 +333,6 @@ System.out.println(jLastEvent.toString());
 System.out.println("Device ID : " + deviceId);
 
 			JSONArray jEvents = eventLogs.getLogs(deviceId, 30);
-		} else if(ev.getActionCommand().equals("Verifys")) {
-			Clock c = Clock.systemUTC();  
-			Duration d = Duration.ofSeconds(-15);  
-			Clock clock = Clock.offset(c, d);    
-
-			JSONArray jEvent = new JSONArray();
-			JSONObject jEventDetails = new JSONObject();
-			jEventDetails.put("device_id", txfs.get(0).getText());
-			jEventDetails.put("end_datetime", c.instant());
-			jEventDetails.put("start_datetime", clock.instant());
-			jEvent.put(jEventDetails);
-
-			JSONArray jEventCode = new JSONArray();
-			jEventCode.put(4865);
-			JSONObject jSearchEvent = new JSONObject();
-			jSearchEvent.put("device_query_list", jEvent);
-			jSearchEvent.put("event_type_code_list", jEventCode);
-			jSearchEvent.put("limit", 0);
-			jSearchEvent.put("offset", 0);
-
-			String eventlogView = dev.searchLogEvent(jSearchEvent);
-
-			JSONObject jsonObject = new JSONObject(eventlogView);
-			JSONArray tsmresponse = (JSONArray) jsonObject.get("records");
-			if (!tsmresponse.isNull(0)) {
-				String userID =null;
-				for(int i=0; i<tsmresponse.length(); i++){
-					userID = Integer.toString(tsmresponse.getJSONObject(i).getJSONObject("user").getInt("user_id"));
-				}
-				String userResults = dev.userDetails(userID);
-				VerifyDesk ver = new VerifyDesk(userResults, dev);
-			} else {
-				JOptionPane.showMessageDialog(null, "User Not found");
-			}
 		} else if(ev.getActionCommand().equals("Search")) {
 			String eventLOG = null;
 			int eventLogName = cmbs.get(1).getSelectedIndex();
