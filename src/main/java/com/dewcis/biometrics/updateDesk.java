@@ -78,11 +78,11 @@ public class updateDesk implements ActionListener {
 		detailPanel.setBounds(5, 5, 900, 100);
 		mainPanel.add(detailPanel);
 		
-		addField(titles.get(0), rowData.get(0), 10, 10, 120, 20, 200);
-		addField(titles.get(1), rowData.get(1), 400, 10, 120, 20, 200);
-		addField(titles.get(2), rowData.get(2), 10, 30, 120, 20, 200);
-		addField(titles.get(3), rowData.get(3), 400, 30, 120, 20, 200);
-		addField(titles.get(4), rowData.get(4), 10, 50, 120, 20, 200);
+		addField(titles.get(0), rowData.get(0), 10, 10, 120, 20, 300);
+		addField(titles.get(1), rowData.get(1), 400, 10, 120, 20, 300);
+		addField(titles.get(2), rowData.get(2), 10, 30, 120, 20, 300);
+		addField(titles.get(3), rowData.get(3), 400, 30, 120, 20, 300);
+		addField(titles.get(4), rowData.get(4), 10, 50, 120, 20, 300);
 
 		addJstudent(rowData);
 
@@ -142,7 +142,7 @@ public class updateDesk implements ActionListener {
 		if(imageMgr.ifExists("pp_" + jStudent.getString("user_id") + ".png")) {
 			pImage = new ImageIcon(imageMgr.getImage("pp_" + jStudent.getString("user_id") + ".png"));
 			Image pimage1 = pImage.getImage();
-			Image pnewimg1 = pimage1.getScaledInstance(330,240,  Image.SCALE_SMOOTH);
+			Image pnewimg1 = pimage1.getScaledInstance(330, 240, Image.SCALE_SMOOTH);
 			pImage = new ImageIcon(pnewimg1);
 		}
 
@@ -196,7 +196,7 @@ public class updateDesk implements ActionListener {
 		lbls.add(lbFinger);
 	}
 
-	public void addPhoto(ImageIcon photo,int x, int y, int w, int h) {
+	public void addPhoto(ImageIcon photo, int x, int y, int w, int h) {
 		JLabel photoView = new JLabel();
 		photoView.setBounds(x, y, w, h);
 		photoView.setIcon(photo);

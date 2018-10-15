@@ -59,7 +59,9 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	Enrolment enrolment = null;
 	Configs cfgs = null;
 	Device dev = null;
+	imageManager imageMgr = null;
 	EventLogs eventLogs = null;
+	VerifyStudent verifyStudent = null;
 	
 	Vector<Vector<String>> rowData;
 	Vector<String> columnNames;
@@ -72,14 +74,16 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	Vector<Integer> deviceIds;
 	Map<String, String> fields;
 	List<String> fieldNames;
+	Map<String, JLabel> stdFields;
 	
 	JTabbedPane tabbedPane = new JTabbedPane();
 	JTabbedPane searchPane = new JTabbedPane();
 	
 	JPanel nonRegPanel, regPanel, verifyPanel, acInPanel, logPanel, filterPanel;
-	JPanel devicePanel, searchPanel, buttonPanel, studentPanel, statusPanel;
+	JPanel devicePanel, searchPanel, studentPanel, picPanel, statusPanel;
 	JTable tableReg, tableNon, tableIN,	tableLog;
 	JTextField filterData;
+	JLabel statusMsg, photoView;
 	JComboBox fieldList, filterList;
 	tableModel tModel, tNonRegModel, tINModel;
 	DefaultTableModel logModel;
@@ -92,6 +96,10 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		
 		deviceNames = new Vector<String>();
 		deviceIds = new Vector<Integer>();
+		btns = new ArrayList<JButton>();
+		txfs = new ArrayList<JTextField>();
+		cmbs = new ArrayList<JComboBox>();
+		stdFields = new HashMap<String, JLabel>();
 
 		// Non Registred user panel
 		nonRegPanel = new JPanel(new BorderLayout());
@@ -113,10 +121,13 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		cfgs = new Configs(db);
 		dev = new Device(cfgs.getConfigs(), null);
 		getDeviceList();
+		imageMgr = new imageManager(dev.getConfigs());
 
 		// Add students on table
 		getStudents();
 
+		verifyStudent = new VerifyStudent();
+		
 		eventLogs = new EventLogs(dev);
 		eventLogs.getMonthLogs();
 		rowData = eventLogs.getRowData();
@@ -131,50 +142,48 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		logPanel.add(scrollPanereg, BorderLayout.CENTER);
 
 		//Verify user panel
-		btns = new ArrayList<JButton>();
-		txfs = new ArrayList<JTextField>();
-		cmbs = new ArrayList<JComboBox>();
-
 		verifyPanel = new JPanel(null);
-		
-		// Device panel for selecting device
-		devicePanel = new JPanel(null);
-		addPanel(devicePanel, "Verify User", 5, 5, 800, 50);
-		addDevice("Device ID ", 10, 20, 100, 20, 400);
 
 		// Search panel for enter search parameters
 		searchPanel = new JPanel(new GridLayout(0, 4));
 		addSearch("Start Date ", "2018-10-04");
 		addSearch("End Date ", "2018-10-04");
 		addCombox("Event names ", eventCodeName);
+		addButton(searchPanel, "Search", 350, 20, 150, 25, true);
+		addButton(searchPanel, "Logs", 550, 20, 150, 25, true);
 		logPanel.add(searchPanel, BorderLayout.PAGE_END);
 
-		// Butons panel
-		buttonPanel = new JPanel(null);
-		addPanel(buttonPanel, "Functions", 5, 200, 800, 70);
-		addButton("Verify", 150, 20, 150, 25, true);
-		addButton("Search", 350, 20, 150, 25, true);
-		addButton("Logs", 550, 20, 150, 25, true);
-		
 		// Student details
 		studentPanel = new JPanel(null);
-		addPanel(studentPanel, "Student Details", 5, 280, 800, 300);
+		addPanel(studentPanel, "Verify", 5, 10, 900, 150);
+		addField("studentid", "Student ID", 10, 20, 120, 20, 300);
+		addField("studentname", "Student Name", 400, 20, 120, 20, 300);
+		addField("telno", "Tel No", 10, 50, 120, 20, 300);
+		addField("email", "Email", 400, 50, 120, 20, 300);
+		addButton(studentPanel, "Verify", 800, 100, 90, 25, true);
 		
+		picPanel = new JPanel(null);
+		photoView = new JLabel();
+		photoView.setBounds(10, 30, 330, 240);
+		picPanel.add(photoView);
+		addPanel(picPanel, "Photo", 10, 180, 350, 300);
+
 		// Status log panel
 		statusPanel = new JPanel(null);
-		addPanel(statusPanel, "Status", 5, 590, 800, 100);
-
+		addPanel(statusPanel, "Status", 5, 500, 800, 100);
+		addMessage("Message", 10, 10, 120, 20, 600);
 
 		tabbedPane.addTab("Verify User / Search logs", verifyPanel);
 		super.add(tabbedPane, BorderLayout.CENTER);
-		
+
+		filterPanel = new JPanel(new FlowLayout());
+		addDevice("Device ID ");
 		filterData = new JTextField(25);
 		filterData.setActionCommand("Filter");
 		filterData.addActionListener(this);
 		String[] filterstr = {"ILIKE", "LIKE", "=", ">", "<", "<=", ">="};	
 		fieldList = new JComboBox<String>(tNonRegModel.getTitles());
 		filterList = new JComboBox<String>(filterstr);
-		filterPanel = new JPanel(new FlowLayout());
 		filterPanel.add(fieldList);
 		filterPanel.add(filterList);
 		filterPanel.add(filterData);
@@ -224,37 +233,32 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		acInPanel.add(scrollPaneInAc, BorderLayout.CENTER);
 	}
 	
+	public void addDevice(String fieldTitle) {
+		JComboBox cmbDevice = new JComboBox(deviceNames);
+		filterPanel.add(cmbDevice);
+		cmbs.add(cmbDevice);
+	}
+	
 	public void addPanel(JPanel nPanel, String btTitle, int x, int y, int w, int h) {
 		nPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), btTitle));
 		nPanel.setBounds(x, y, w, h);
 		verifyPanel.add(nPanel);
 	}
 
-	public void addButton(String btTitle, int x, int y, int w, int h, boolean enabled) {
+	public void addButton(JPanel nPanel, String btTitle, int x, int y, int w, int h, boolean enabled) {
 		JButton btn = new JButton(btTitle);
 		btn.setBounds(x, y, w, h);
 		btn.addActionListener(this);
 		btn.setEnabled(enabled);
-		buttonPanel.add(btn);
+		nPanel.add(btn);
 		btns.add(btn);
-	}
-
-	public void addDevice(String fieldTitle, int x, int y, int w, int h, int dw) {
-		JLabel lbTitle = new JLabel(fieldTitle + " : ");
-		lbTitle.setBounds(x, y, w, h);
-		devicePanel.add(lbTitle);
-				
-		JComboBox cmbDevice = new JComboBox(deviceNames);
-		cmbDevice.setBounds(x + w + 5, y, dw, h);
-		devicePanel.add(cmbDevice);
-		cmbs.add(cmbDevice);
 	}
 
 	public void addSearch(String fieldTitle, String fieldValue) {
 		JLabel lbTitle = new JLabel(fieldTitle + " : ");
 		searchPanel.add(lbTitle);
 		
-		JTextField tfDevice = new JTextField();
+		JTextField tfDevice = new JTextField(50);
 		tfDevice.setText(fieldValue);
 		searchPanel.add(tfDevice);
 		txfs.add(tfDevice);
@@ -267,6 +271,27 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		JComboBox cmbValues = new JComboBox(fieldValue);
 		searchPanel.add(cmbValues);
 		cmbs.add(cmbValues);
+	}
+	
+	public void addMessage(String fieldTitle, int x, int y, int w, int h, int dw) {
+		JLabel lbTitle = new JLabel(fieldTitle + " : ");
+		lbTitle.setBounds(x, y, w, h);
+		statusPanel.add(lbTitle);
+		
+		statusMsg = new JLabel();
+		statusMsg.setBounds(x + w + 10, y, dw, h);
+		statusPanel.add(statusMsg);
+	}
+	
+	public void addField(String fieldKey, String fieldTitle, int x, int y, int w, int h, int dw) {
+		JLabel lbTitle = new JLabel(fieldTitle + " : ");
+		lbTitle.setBounds(x, y, w, h);
+		studentPanel.add(lbTitle);
+		
+		JLabel lbValue = new JLabel("");
+		lbValue.setBounds(x + w + 10, y, dw, h);
+		stdFields.put(fieldKey, lbValue);
+		studentPanel.add(lbValue);
 	}
 	
 	public void getDeviceList() {	
@@ -320,13 +345,34 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	public void actionPerformed(ActionEvent ev) {
 		if(ev.getActionCommand().equals("Verify")) {
 			String deviceId = deviceIds.get(cmbs.get(0).getSelectedIndex()).toString();
-System.out.println("Device ID : " + deviceId);
 
-			JSONArray jEvents = eventLogs.getLogs(deviceId, 60*24*3);
-System.out.println(jEvents.length());
+			JSONArray jEvents = eventLogs.getLogs(deviceId, 30);
 			if(jEvents.length() > 0) {
 				JSONObject jLastEvent = jEvents.getJSONObject(jEvents.length() - 1);
 System.out.println(jLastEvent.toString());
+				if(jLastEvent.has("user")) {
+					String userId = jLastEvent.getJSONObject("user").getString("user_id");
+					String userName = jLastEvent.getJSONObject("user").getString("name");
+					Map<String, String> std = verifyStudent.getStudent(db, userId);
+					if(std.size() == 0) {
+						statusMsg.setText("No students details in database for " + userName);
+					} else {
+						statusMsg.setText("Found : " + userName);
+						for(String fieldKey : std.keySet())
+							stdFields.get(fieldKey).setText(std.get(fieldKey));
+					}
+					
+					if(imageMgr.ifExists("pp_" + userId + ".png")) {
+						ImageIcon pImage = new ImageIcon(imageMgr.getImage("pp_" + userId + ".png"));
+						Image pnewimg1 = pImage.getImage().getScaledInstance(330, 240, Image.SCALE_SMOOTH);
+						ImageIcon imagePic = new ImageIcon(pnewimg1);
+						photoView.setIcon(imagePic);
+					}
+				} else {
+					statusMsg.setText("Student not registred");
+				}
+			} else {
+				statusMsg.setText("Place finger on the device first");
 			}
 		} else if(ev.getActionCommand().equals("Logs")) {
 			String deviceId = deviceIds.get(cmbs.get(0).getSelectedIndex()).toString();
@@ -339,27 +385,7 @@ System.out.println("Device ID : " + deviceId);
 			String deviceId = deviceIds.get(cmbs.get(0).getSelectedIndex()).toString();
 			
 			if(0 != eventLogName) {
-				eventLOG = logListcode.get(eventLogName);
-				JSONArray jCode = new JSONArray();
-				for(String logCode : logListcode) jCode.put(logCode);
-
-				JSONArray jEvent = new JSONArray();
-				JSONObject jEventDetails = new JSONObject();
-				jEventDetails.put("device_id", deviceId);
-				jEventDetails.put("end_datetime", txfs.get(1).getText()+"T23:59:00.00Z");
-				jEventDetails.put("start_datetime", txfs.get(0).getText()+"T00:00:00.00Z");
-				jEvent.put(jEventDetails);
-
-				JSONObject jSearchEvent = new JSONObject();
-				jSearchEvent.put("device_query_list", jEvent);
-				jSearchEvent.put("event_type_code_list", jCode);
-				jSearchEvent.put("limit", 0);
-				jSearchEvent.put("offset", 0);
-System.out.println(jSearchEvent.toString());
-
-				String eventlogView = dev.searchLogEvent(jSearchEvent);
-System.out.println(eventlogView);
-				searchLogDesk srch = new searchLogDesk(eventlogView);
+				
 			} else if (0==eventLogName) {
 				JOptionPane.showMessageDialog(null, "You can't Search For None Log Events");
 			}
