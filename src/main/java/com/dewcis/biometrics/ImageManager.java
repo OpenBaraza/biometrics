@@ -13,18 +13,18 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import com.dewcis.utils.webdav;
+import com.dewcis.utils.DWebdav;
 
-public class imageManager {
-	Logger log = Logger.getLogger(imageManager.class.getName());
+public class ImageManager {
+	Logger log = Logger.getLogger(ImageManager.class.getName());
 
-	webdav wdv;
+	DWebdav wdv;
 
-	public imageManager(Map<String, String> cfgs) {
+	public ImageManager(Map<String, String> cfgs) {
 		String webdavPath = cfgs.get("webdav_path");
 		String webdavUsername = cfgs.get("webdav_username");
 		String webdavPassword = cfgs.get("webdav_password");
-		wdv = new webdav(webdavPath, webdavUsername, webdavPassword);
+		wdv = new DWebdav(webdavPath, webdavUsername, webdavPassword);
 	}
 	
 	public boolean ifExists(String fileName) {

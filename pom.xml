@@ -86,7 +86,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib</classpathPrefix>
-							<mainClass>com.dewcis.biometrics.loginDesk</mainClass>
+							<mainClass>com.dewcis.biometrics.LoginDesk</mainClass>
 						</manifest>
 						<manifestEntries>
 							<Class-Path>lib/</Class-Path>

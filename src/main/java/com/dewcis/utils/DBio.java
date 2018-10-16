@@ -23,8 +23,8 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 
-public class Bio {
-	Logger log = Logger.getLogger(Bio.class.getName());
+public class DBio {
+	Logger log = Logger.getLogger(DBio.class.getName());
 
 	public String getCurrentDir() {
 		File directory = new File (".");
@@ -133,7 +133,7 @@ public class Bio {
 
 	// Load an icon image
     public BufferedImage loadImage(String path) {
-		URL imgURL = Bio.class.getResource(path);
+		URL imgURL = DBio.class.getResource(path);
         if (imgURL != null) {
 			try {
 				return ImageIO.read(imgURL);

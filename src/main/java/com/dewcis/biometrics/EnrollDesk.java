@@ -39,8 +39,8 @@ import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
 import com.github.sarxos.webcam.WebcamResolution;
 
-public class enrollDesk implements ActionListener {
-	Logger log = Logger.getLogger(enrollDesk.class.getName());
+public class EnrollDesk implements ActionListener {
+	Logger log = Logger.getLogger(EnrollDesk.class.getName());
 
 	Connection db = null;
 	
@@ -66,15 +66,15 @@ public class enrollDesk implements ActionListener {
 	JSONObject jfingerItem1 = new JSONObject();
 	JSONObject jfingerItem2 = new JSONObject();
 	
-	imageManager imageMgr = null;
+	ImageManager imageMgr = null;
 	ImageIcon fImage1 = null;
 	Image fimage1 = null;
 	Image fNewimg1 = null;
 
-	public enrollDesk(Vector<String> titles, Vector<String> rowData, Device dev, String deviceId) {
+	public EnrollDesk(Vector<String> titles, Vector<String> rowData, Device dev, String deviceId) {
 		this.dev = dev;
 
-		imageMgr = new imageManager(dev.getConfigs());
+		imageMgr = new ImageManager(dev.getConfigs());
 		fImage1 = new ImageIcon(imageMgr.getImage("ftemplate1.png"));
 		fimage1 = fImage1.getImage();
 		fNewimg1 = fimage1.getScaledInstance(180, 200, Image.SCALE_SMOOTH);

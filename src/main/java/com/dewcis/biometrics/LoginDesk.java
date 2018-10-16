@@ -18,15 +18,15 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-import com.dewcis.swing.BImagePanel;
+import com.dewcis.swing.DImagePanel;
 
-public class loginDesk implements ActionListener {
-	Logger log = Logger.getLogger(loginDesk.class.getName());
+public class LoginDesk implements ActionListener {
+	Logger log = Logger.getLogger(LoginDesk.class.getName());
 
 	Connection db = null;
 
 	JFrame frame;
-	BImagePanel imagePanel;
+	DImagePanel imagePanel;
 	JPanel loginPanel;
 	JLabel lUserName, lPassword, clearStatus, loginStatus;
 	JTextField tfUserName;
@@ -34,11 +34,11 @@ public class loginDesk implements ActionListener {
 	JButton btClear, btOkay;
 
 	public static void main(String args[]) {
-		loginDesk ld = new loginDesk();
+		LoginDesk ld = new LoginDesk();
 	}
 
-	public loginDesk() {
-		imagePanel = new BImagePanel("/images/background.jpg");
+	public LoginDesk() {
+		imagePanel = new DImagePanel("/images/background.jpg");
 		loginPanel = new JPanel(new GridLayout(0, 2, 2, 2));
 		loginPanel.setOpaque(false);
 		imagePanel.add(loginPanel);
@@ -94,7 +94,7 @@ public class loginDesk implements ActionListener {
 			} else {
 				frame.remove(imagePanel);
 
-				mainDesk md = new mainDesk(db);
+				MainDesk md = new MainDesk(db);
 				frame.getContentPane().add(md, BorderLayout.CENTER);
 				
 				// Repaint main panel

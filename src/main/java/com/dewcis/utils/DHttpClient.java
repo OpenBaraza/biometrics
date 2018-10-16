@@ -1,5 +1,4 @@
-package com.dewcis.biometrics;
-
+package com.dewcis.utils;
 
 import java.util.logging.Logger;
 import java.util.Arrays;
@@ -29,12 +28,12 @@ import org.apache.http.util.EntityUtils;
 
 import org.json.JSONObject;
 
-public class httpClient {
-	Logger log = Logger.getLogger(httpClient.class.getName());
+public class DHttpClient {
+	Logger log = Logger.getLogger(DHttpClient.class.getName());
 
 	String domain = "";
 	
-	public httpClient(String domain) {
+	public DHttpClient(String domain) {
 		this.domain = domain;
 	}
 

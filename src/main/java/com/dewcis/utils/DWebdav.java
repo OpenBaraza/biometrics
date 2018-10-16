@@ -22,13 +22,13 @@ import com.github.sardine.Sardine;
 import com.github.sardine.DavResource;
 import com.github.sardine.SardineFactory;
 
-public class webdav {
-	Logger log = Logger.getLogger(Bio.class.getName());
+public class DWebdav {
+	Logger log = Logger.getLogger(DWebdav.class.getName());
 
 	Sardine sardine = null;
 	String basePath = null;
 
-	public webdav(String path, String userName, String passWord) {
+	public DWebdav(String path, String userName, String passWord) {
 		if((path == null) || (userName == null)) return;
 		basePath = path;
 		try {

@@ -27,7 +27,8 @@ import org.json.JSONObject;
 
 import com.github.sarxos.webcam.Webcam;
 
-import com.dewcis.utils.webdav;
+import com.dewcis.utils.DWebdav;
+import com.dewcis.utils.DHttpClient;
 
 public class Device {
 	Logger log = Logger.getLogger(Device.class.getName());
@@ -55,7 +56,7 @@ public class Device {
 		
 		baseUrl = cfgs.get("base_url");
 		
-		httpClient client = new httpClient(cfgs.get("domain"));
+		DHttpClient client = new DHttpClient(cfgs.get("domain"));
         String uri = baseUrl + "/login";
 		String cookies = client.getCookies(uri, jLogin.toString());
 		System.out.println("BASE COOKIES : " + cookies);
@@ -69,7 +70,7 @@ public class Device {
 	//Adding user to the biostar server
 	public String addUser(JSONObject jStudent) {
 	    String uri = baseUrl + "/users";
-	    httpClient client = new httpClient(cfgs.get("domain"));
+	    DHttpClient client = new DHttpClient(cfgs.get("domain"));
 	    String results = client.post(uri, jStudent.toString(), sessionId);
 	    return results;
 	}
@@ -77,7 +78,7 @@ public class Device {
     //Verify user Finger Print with the biostar server Fingerprints
 	public String verifyScan(String deviceID, JSONObject jVerify) {
 		String uri = baseUrl + "/devices/"+deviceID+"/verify_fingerprint";
-		httpClient client = new httpClient(cfgs.get("domain"));
+		DHttpClient client = new DHttpClient(cfgs.get("domain"));
 		String results = client.post(uri, jVerify.toString(), sessionId);
 		return results;
 	}
@@ -90,7 +91,7 @@ public class Device {
 	    jscan.put("enroll_quality","80");
 	    jscan.put("retrieve_raw_image",true);
 
-	    httpClient client = new httpClient(cfgs.get("domain"));
+	    DHttpClient client = new DHttpClient(cfgs.get("domain"));
 	    String results = client.post(uri, jscan.toString(), sessionId);
 
 	    return results;
@@ -107,7 +108,7 @@ public class Device {
 				.addParameter("offset", "0")
 				.build();
 
-			httpClient client = new httpClient(cfgs.get("domain"));
+			DHttpClient client = new DHttpClient(cfgs.get("domain"));
 			results = client.get(uri, sessionId);
 		} catch (URISyntaxException ex) {
 			log.severe("URI Error " + ex);
@@ -123,7 +124,7 @@ public class Device {
 		
 		try {
 			URI uri = new URIBuilder(url).build();
-			httpClient client = new httpClient(cfgs.get("domain"));
+			DHttpClient client = new DHttpClient(cfgs.get("domain"));
 			results = client.get(uri, sessionId);
 		} catch (URISyntaxException ex) {
 			log.severe("URI Error " + ex);
@@ -137,7 +138,7 @@ public class Device {
 		String uri = baseUrl + "/users/" + user_id + "/fingerprint_templates";
 		String contentType = "application/json";
 
-		httpClient client = new httpClient(cfgs.get("domain"));
+		DHttpClient client = new DHttpClient(cfgs.get("domain"));
 		String results = client.put(uri, jenroll.toString(), sessionId, contentType);
 
 		return results;
@@ -148,7 +149,7 @@ public class Device {
 	    String uri = baseUrl + "/users/" + user_id;
 	    String contentType = "application/json";
 
-	    httpClient client = new httpClient(cfgs.get("domain"));
+	    DHttpClient client = new DHttpClient(cfgs.get("domain"));
 	    String results = client.put(uri, jACINuser.toString(), sessionId, contentType);
 	    
 	    return results;
@@ -162,7 +163,7 @@ public class Device {
 			URI uri = new URIBuilder(url)
 				.build();
 
-			httpClient client = new httpClient(cfgs.get("domain"));
+			DHttpClient client = new DHttpClient(cfgs.get("domain"));
 			results = client.get(uri, sessionId);
 		} catch (URISyntaxException ex) {
 			log.severe("URI Error " + ex);
@@ -173,7 +174,7 @@ public class Device {
 	//Deleting user from the device
 	public String delUserDevice(String user_id, String deviceID) {
 		String uri = baseUrl + "/devices/" + deviceID + "/users/" + user_id;
-		httpClient del = new httpClient(cfgs.get("domain"));
+		DHttpClient del = new DHttpClient(cfgs.get("domain"));
 		String results = del.delete(uri, sessionId);
 		return results;
 	}
@@ -181,7 +182,7 @@ public class Device {
 	//Deleting user from the sever
 	public String delUser(String user_id) {
 		String uri = baseUrl + "/users/" + user_id;
-		httpClient del = new httpClient(cfgs.get("domain"));
+		DHttpClient del = new DHttpClient(cfgs.get("domain"));
 		String results = del.delete(uri, sessionId);
 		return results;
 	}
@@ -197,7 +198,7 @@ public class Device {
 				.addParameter("offset", "0")
 				.build();
 
-			httpClient client = new httpClient(cfgs.get("domain"));
+			DHttpClient client = new DHttpClient(cfgs.get("domain"));
 			results = client.get(uri, sessionId);            
         } catch (URISyntaxException ex) {
 			log.severe("URI Error " + ex);
@@ -213,7 +214,7 @@ public class Device {
 			URI uri = new URIBuilder(url)
 					.build();
 			
-			httpClient client = new httpClient(cfgs.get("domain"));
+			DHttpClient client = new DHttpClient(cfgs.get("domain"));
 			results = client.get(uri, sessionId);
 		} catch (URISyntaxException ex) {
 			log.severe("URI Error " + ex);
@@ -224,7 +225,7 @@ public class Device {
 	//Getting mothly log events occured
 	public String getEventLog(JSONObject jEventlog){
 	    String uri = baseUrl + "/monitoring/event_log/search";
-	    httpClient client = new httpClient(cfgs.get("domain"));
+	    DHttpClient client = new DHttpClient(cfgs.get("domain"));
 	    String results = client.post(uri, jEventlog.toString(), sessionId);
 	    return results;
 	}
@@ -232,7 +233,7 @@ public class Device {
 	//Getting mothly log events occured
 	public String mothlyLogEvent(JSONObject jEventlog){
 	    String uri = baseUrl + "/monitoring/event_log/search_by_device";
-	    httpClient client = new httpClient(cfgs.get("domain"));
+	    DHttpClient client = new DHttpClient(cfgs.get("domain"));
 	    String results = client.post(uri, jEventlog.toString(), sessionId);
 	    return results;
 	}
@@ -240,7 +241,7 @@ public class Device {
 	//Searching for log events that have occured by device
 	public String searchLogEvent(JSONObject jEventlog){
 		String uri = baseUrl + "/monitoring/event_log/search_by_device";
-		httpClient client = new httpClient(cfgs.get("domain"));
+		DHttpClient client = new DHttpClient(cfgs.get("domain"));
 		String results = client.post(uri, jEventlog.toString(), sessionId);
 		return results;
 	}
@@ -248,7 +249,7 @@ public class Device {
 	//Add user to the device you want
 	public void addUserDevice(JSONObject jUsersID, String deviceID) {
 		String uri = baseUrl + "/devices/"+deviceID+"/users";
-		httpClient client = new httpClient(cfgs.get("domain"));
+		DHttpClient client = new DHttpClient(cfgs.get("domain"));
 		client.post(uri, jUsersID.toString(), sessionId);
 	}
 	
@@ -267,7 +268,7 @@ public class Device {
 				InputStream is = new ByteArrayInputStream(os.toByteArray());
 				
 				// Repository access
-				webdav wdv = new webdav(cfgs.get("webdav_path"), cfgs.get("webdav_username"), cfgs.get("webdav_password"));
+				DWebdav wdv = new DWebdav(cfgs.get("webdav_path"), cfgs.get("webdav_username"), cfgs.get("webdav_password"));
 				wdv.saveFile(is, "pp_"+user_id+".png");
 			} catch (IOException ex) {
 				log.log(Level.SEVERE, null, ex);

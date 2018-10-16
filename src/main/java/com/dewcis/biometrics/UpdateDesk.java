@@ -38,8 +38,8 @@ import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
 import com.github.sarxos.webcam.WebcamResolution;
 
-public class updateDesk implements ActionListener {
-	Logger log = Logger.getLogger(updateDesk.class.getName());
+public class UpdateDesk implements ActionListener {
+	Logger log = Logger.getLogger(UpdateDesk.class.getName());
 
 	Connection db = null;
 	Device dev = null;
@@ -63,12 +63,12 @@ public class updateDesk implements ActionListener {
 	JSONObject jfingerItem1 = new JSONObject();
 	JSONObject jfingerItem2 = new JSONObject();
 
-	imageManager imageMgr = null;
+	ImageManager imageMgr = null;
 
-	public updateDesk(Vector<String> titles, Vector<String> rowData, Device dev, String deviceId) {
+	public UpdateDesk(Vector<String> titles, Vector<String> rowData, Device dev, String deviceId) {
 		this.dev = dev;
 		
-		imageMgr = new imageManager(dev.getConfigs());
+		imageMgr = new ImageManager(dev.getConfigs());
 
 		mainPanel = new JPanel(null);
 		

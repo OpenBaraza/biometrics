@@ -24,10 +24,10 @@ import java.sql.SQLException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class verifyFingerPrint {
-	Logger log = Logger.getLogger(verifyFingerPrint.class.getName());
+public class VerifyFingerPrint {
+	Logger log = Logger.getLogger(VerifyFingerPrint.class.getName());
 
-	public String verifyFingerPrint(Device dev, String template0, String deviceID){
+	public String VerifyFingerPrint(Device dev, String template0, String deviceID){
 		String results = dev.usersList();
 		String verificationResults = null;
 

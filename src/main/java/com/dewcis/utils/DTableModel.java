@@ -17,16 +17,13 @@ import java.util.logging.Level;
 
 import javax.swing.table.AbstractTableModel;
 
-public class tableModel extends AbstractTableModel {
-	Logger log = Logger.getLogger(tableModel.class.getName());
+public class DTableModel extends AbstractTableModel {
+	Logger log = Logger.getLogger(DTableModel.class.getName());
 	
 	private Vector<Vector<String>> data;
 	private Vector<String> titles;
-	String[] userAC = null;
-	String[] userIN = null;
-	String[] userALL = null;
 	
-	public tableModel(Map<String, String> fields, Vector<Vector<String>> newData) {
+	public DTableModel(Map<String, String> fields, Vector<Vector<String>> newData) {
 		titles = new Vector<String>();
 		data = new Vector<Vector<String>>(newData);
 		

@@ -2,9 +2,22 @@ package com.dewcis.biometrics;
 
 import java.sql.Connection;
 
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
+import java.util.Date;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.YearMonth;
+import java.text.SimpleDateFormat;
 
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
@@ -28,30 +41,18 @@ import javax.swing.border.LineBorder;
 import javax.swing.BorderFactory;
 import javax.swing.border.EtchedBorder;
 import javax.swing.JDesktopPane;
-import javax.swing.ImageIcon;
-import javax.swing.table.DefaultTableModel;
-
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.Clock;
-import java.time.Duration;
-import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
-import java.util.logging.Level;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import javax.swing.ImageIcon;
+import javax.swing.table.DefaultTableModel;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.dewcis.utils.tableModel;
+import com.dewcis.utils.DTableModel;
 
-public class mainDesk extends JPanel implements MouseListener , ActionListener{
-	Logger log = Logger.getLogger(mainDesk.class.getName());
+public class MainDesk extends JPanel implements MouseListener , ActionListener{
+	Logger log = Logger.getLogger(MainDesk.class.getName());
 
 	Connection db = null;
 	String mySql = "";
@@ -59,7 +60,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	Enrolment enrolment = null;
 	Configs cfgs = null;
 	Device dev = null;
-	imageManager imageMgr = null;
+	ImageManager imageMgr = null;
 	EventLogs eventLogs = null;
 	VerifyStudent verifyStudent = null;
 	
@@ -85,12 +86,12 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 	JTextField filterData;
 	JLabel statusMsg, photoView;
 	JComboBox fieldList, filterList;
-	tableModel tModel, tNonRegModel, tINModel;
+	DTableModel tModel, tNonRegModel, tINModel;
 	DefaultTableModel logModel;
 
 	Vector<String> eventCodeName, logListcode;
 
-	public mainDesk(Connection db) {
+	public MainDesk(Connection db) {
 		super(new BorderLayout());
 		this.db = db;
 		
@@ -121,7 +122,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		cfgs = new Configs(db);
 		dev = new Device(cfgs.getConfigs(), null);
 		getDeviceList();
-		imageMgr = new imageManager(dev.getConfigs());
+		imageMgr = new ImageManager(dev.getConfigs());
 
 		// Add students on table
 		getStudents();
@@ -146,9 +147,9 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 
 		// Search panel for enter search parameters
 		searchPanel = new JPanel(new GridLayout(0, 4));
-		addSearch("Start Date ", "2018-10-04");
-		addSearch("End Date ", "2018-10-04");
-		addCombox("Event names ", eventCodeName);
+		addSearch("Start Date");
+		addSearch("End Date");
+		addCombox("Event names", eventCodeName);
 		addButton(searchPanel, "Search", 350, 20, 150, 25, true);
 		addButton(searchPanel, "Logs", 550, 20, 150, 25, true);
 		logPanel.add(searchPanel, BorderLayout.PAGE_END);
@@ -212,21 +213,21 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		enrolment.getStudents(db, mySql, fields);
         
 		//Creating table for Non Registered students.
-		tNonRegModel = new tableModel(fields, enrolment.getUnRegistred());
+		tNonRegModel = new DTableModel(fields, enrolment.getUnRegistred());
 		tableNon = new JTable(tNonRegModel);
 		tableNon.addMouseListener(this);
 		JScrollPane scrollPane = new JScrollPane(tableNon);
 		nonRegPanel.add(scrollPane, BorderLayout.CENTER);
 		
 		//Creating table for Registered students
-		tModel = new tableModel(fields, enrolment.getRegistred());
+		tModel = new DTableModel(fields, enrolment.getRegistred());
 		tableReg = new JTable(tModel);
 		tableReg.addMouseListener(this);
 		JScrollPane scrollPanereg = new JScrollPane(tableReg);
 		regPanel.add(scrollPanereg, BorderLayout.CENTER);
 
 		//Creating table for Inactive students
-		tINModel = new tableModel(fields, enrolment.getInActive());
+		tINModel = new DTableModel(fields, enrolment.getInActive());
 		tableIN = new JTable(tINModel);
 		tableIN.addMouseListener(this);
 		JScrollPane scrollPaneInAc = new JScrollPane(tableIN);
@@ -254,12 +255,15 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 		btns.add(btn);
 	}
 
-	public void addSearch(String fieldTitle, String fieldValue) {
+	public void addSearch(String fieldTitle) {
 		JLabel lbTitle = new JLabel(fieldTitle + " : ");
 		searchPanel.add(lbTitle);
 		
+		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+		String dateValue = sdfDate.format(new Date());
+		
 		JTextField tfDevice = new JTextField(50);
-		tfDevice.setText(fieldValue);
+		tfDevice.setText(dateValue);
 		searchPanel.add(tfDevice);
 		txfs.add(tfDevice);
 	}
@@ -319,7 +323,7 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 			int bRow = tableNon.getSelectedRow();
 			if ((bRow != -1) && (ev.getClickCount() == 2)) {
 				int index = tableNon.convertRowIndexToModel(bRow);
-				enrollDesk eDesk = new enrollDesk(tNonRegModel.getTitles(), tNonRegModel.getRowValues(index), dev, deviceId);
+				EnrollDesk eDesk = new EnrollDesk(tNonRegModel.getTitles(), tNonRegModel.getRowValues(index), dev, deviceId);
 				filter();		// Filter
 			}
 		} else if(selectedIndex == 1) {
@@ -327,7 +331,8 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 			int aRow = tableReg.getSelectedRow();
 			if ((aRow != -1) && (ev.getClickCount() == 2)) {
 				int index = tableReg.convertRowIndexToModel(aRow);
-				updateDesk uDesk = new updateDesk(tModel.getTitles(), tModel.getRowValues(index), dev, deviceId);
+				UpdateDesk uDesk = new UpdateDesk(tModel.getTitles(), tModel.getRowValues(index), dev, deviceId);
+				filter();		// Filter
 			}
 		} else if(selectedIndex == 2) {
 			// Selected Row in the Active/Inactive users in the third JTabbedPane called "Activate / Inactivate Users ".
@@ -337,7 +342,8 @@ public class mainDesk extends JPanel implements MouseListener , ActionListener{
 				Vector<String> rowData = tINModel.getRowValues(index);
 				String user_id = rowData.get(2);
 				String userResults = dev.userDetails(user_id);
-				activateDesk aDesk = new activateDesk(tINModel.getTitles(), userResults, dev);
+				ActivateDesk aDesk = new ActivateDesk(tINModel.getTitles(), userResults, dev);
+				filter();		// Filter
 			}
 		}
 	}
@@ -427,8 +433,7 @@ System.out.println("Device ID : " + deviceId);
 		tableReg.repaint();
 		tableReg.revalidate();
 
-		//Creating table for Inactive students
-		tINModel = new tableModel(fields, enrolment.getInActive());
+		tINModel.refresh(enrolment.getInActive());
 		tableIN.repaint();
 		tableIN.revalidate();
 	}

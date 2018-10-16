@@ -30,8 +30,8 @@ import java.awt.Image;
 
 import javax.swing.border.LineBorder;
 
-public class activateDesk implements ActionListener {
-	Logger log = Logger.getLogger(enrollDesk.class.getName());
+public class ActivateDesk implements ActionListener {
+	Logger log = Logger.getLogger(ActivateDesk.class.getName());
 
 	Connection db = null;
 	Device dev = null;
@@ -45,12 +45,12 @@ public class activateDesk implements ActionListener {
 	List<JLabel> lblPhoto;
 	List<JDesktopPane> dsk;
 	
-	imageManager imageMgr = null;
+	ImageManager imageMgr = null;
 
-	public activateDesk(Vector<String> titles,String student, Device dev) {
+	public ActivateDesk(Vector<String> titles,String student, Device dev) {
 		this.dev = dev;
 		
-		imageMgr = new imageManager(dev.getConfigs());
+		imageMgr = new ImageManager(dev.getConfigs());
 		
 		jStudent = new JSONObject(student);
 
@@ -62,17 +62,17 @@ public class activateDesk implements ActionListener {
 		detailPanel.setBounds(5, 5, 800, 150);
 		mainPanel.add(detailPanel);
 		
-		addField(titles.get(0), jStudent.getString("login_id"), 10, 10, 120, 20, 200);
-		addField(titles.get(1), jStudent.getString("name"), 400, 10, 120, 20, 200);
-		addField(titles.get(2), jStudent.getString("user_id"), 10, 30, 120, 20, 200);
-		addField(titles.get(3), jStudent.getString("phone_number"), 400, 30, 120, 20, 200);
-		addField(titles.get(4), jStudent.getString("email"), 10, 50, 120, 20, 200);
-		addField("Status",		jStudent.getString("status"), 400, 50, 120, 20, 200);
+		addField(titles.get(0), jStudent.getString("login_id"), 10, 10, 120, 20, 300);
+		addField(titles.get(1), jStudent.getString("name"), 400, 10, 120, 20, 300);
+		addField(titles.get(2), jStudent.getString("user_id"), 10, 30, 120, 20, 300);
+		addField(titles.get(3), jStudent.getString("phone_number"), 400, 30, 120, 20, 300);
+		addField(titles.get(4), jStudent.getString("email"), 10, 50, 120, 20, 300);
+		addField("Status",		jStudent.getString("status"), 400, 50, 120, 20, 300);
 
 		// Butons panel
 		buttonPanel = new JPanel(null);
 		buttonPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Functions"));
-		buttonPanel.setBounds(5, 500, 850, 70);
+		buttonPanel.setBounds(5, 500, 900, 70);
 		mainPanel.add(buttonPanel);
 		
 		btns = new ArrayList<JButton>();
@@ -124,7 +124,7 @@ public class activateDesk implements ActionListener {
 		// Load on main form
 		eFrame = new JFrame("Enroll");
 		eDialog = new JDialog(eFrame , "Activate User", true);
-		eDialog.setSize(900, 700);
+		eDialog.setSize(910, 700);
 		eDialog.getContentPane().add(mainPanel, BorderLayout.CENTER);
 		eDialog.setVisible(true);
 	}
