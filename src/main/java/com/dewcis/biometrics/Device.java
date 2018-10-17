@@ -188,7 +188,7 @@ public class Device {
 	}
 	
 	//Getting avilable device list from the server
-	public String deviceList() {
+	public String getDeviceList() {
 		String url = baseUrl + "/devices";
 		String results = "";
 		try {

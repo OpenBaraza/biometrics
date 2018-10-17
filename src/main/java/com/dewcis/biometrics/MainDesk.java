@@ -44,7 +44,6 @@ import javax.swing.JDesktopPane;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.ImageIcon;
-import javax.swing.table.DefaultTableModel;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -63,13 +62,11 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 	ImageManager imageMgr = null;
 	EventLogs eventLogs = null;
 	VerifyStudent verifyStudent = null;
-	
-	Vector<Vector<String>> rowData;
-	Vector<String> columnNames;
+	boolean notVerifiying = true;
 
 	List<JButton> btns;
 	List<JTextField> txfs;
-	List<JComboBox> cmbs;
+	JComboBox cmbDevices, cmbEventNames;
 	
 	Vector<String> deviceNames;
 	Vector<Integer> deviceIds;
@@ -86,10 +83,9 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 	JTextField filterData;
 	JLabel statusMsg, photoView;
 	JComboBox fieldList, filterList;
-	DTableModel tModel, tNonRegModel, tINModel;
-	DefaultTableModel logModel;
+	DTableModel logModel, tModel, tNonRegModel, tINModel;
 
-	Vector<String> eventCodeName, logListcode;
+	Vector<String> eventCodeName;
 
 	public MainDesk(Connection db) {
 		super(new BorderLayout());
@@ -99,7 +95,6 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 		deviceIds = new Vector<Integer>();
 		btns = new ArrayList<JButton>();
 		txfs = new ArrayList<JTextField>();
-		cmbs = new ArrayList<JComboBox>();
 		stdFields = new HashMap<String, JLabel>();
 
 		// Non Registred user panel
@@ -112,11 +107,11 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 
 		//activate Deactivate user panel
 		acInPanel = new JPanel(new BorderLayout());
-		tabbedPane.addTab("Inactivate Users", acInPanel);
+		tabbedPane.addTab("In Activate Users", acInPanel);
 
 		//log user panel
 		logPanel = new JPanel(new BorderLayout());
-		tabbedPane.addTab("users Logs", logPanel);
+		tabbedPane.addTab("Users Logs", logPanel);
 		
 		// Getting details from the config.txt from class base_url
 		cfgs = new Configs(db);
@@ -130,14 +125,10 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 		verifyStudent = new VerifyStudent();
 		
 		eventLogs = new EventLogs(dev);
-		eventLogs.getMonthLogs();
-		rowData = eventLogs.getRowData();
-		columnNames = eventLogs.getColumnNames();
-
+		JSONArray rLog = eventLogs.getLogs(getCurrentDate(), getCurrentDate());
 		eventCodeName = eventLogs.getEventCodeName();
-		logListcode = eventLogs.getLogListcode();
 		
-		logModel = new DefaultTableModel(rowData,columnNames);
+		logModel = new DTableModel(eventLogs.getColumnNames(), eventLogs.getRecords(rLog));
 		tableLog = new JTable(logModel);
 		JScrollPane scrollPanereg = new JScrollPane(tableLog);
 		logPanel.add(scrollPanereg, BorderLayout.CENTER);
@@ -235,9 +226,8 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 	}
 	
 	public void addDevice(String fieldTitle) {
-		JComboBox cmbDevice = new JComboBox(deviceNames);
-		filterPanel.add(cmbDevice);
-		cmbs.add(cmbDevice);
+		cmbDevices = new JComboBox(deviceNames);
+		filterPanel.add(cmbDevices);
 	}
 	
 	public void addPanel(JPanel nPanel, String btTitle, int x, int y, int w, int h) {
@@ -259,22 +249,26 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 		JLabel lbTitle = new JLabel(fieldTitle + " : ");
 		searchPanel.add(lbTitle);
 		
-		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
-		String dateValue = sdfDate.format(new Date());
+		String dateValue = getCurrentDate();
 		
 		JTextField tfDevice = new JTextField(50);
 		tfDevice.setText(dateValue);
 		searchPanel.add(tfDevice);
 		txfs.add(tfDevice);
 	}
+	
+	public String getCurrentDate() {
+		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+		String dateValue = sdfDate.format(new Date());
+		return dateValue;
+	}
 
 	public void addCombox(String fieldTitle, Vector<String> fieldValue) {
 		JLabel lbTitle = new JLabel(fieldTitle + " : ");
 		searchPanel.add(lbTitle);
 		
-		JComboBox cmbValues = new JComboBox(fieldValue);
-		searchPanel.add(cmbValues);
-		cmbs.add(cmbValues);
+		cmbEventNames = new JComboBox(fieldValue);
+		searchPanel.add(cmbEventNames);
 	}
 	
 	public void addMessage(String fieldTitle, int x, int y, int w, int h, int dw) {
@@ -299,9 +293,9 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 	}
 	
 	public void getDeviceList() {	
-		JSONObject jResp = new JSONObject(dev.deviceList());
+		JSONObject jResp = new JSONObject(dev.getDeviceList());
 		JSONArray jRecord = jResp.getJSONArray("records");
-	
+
 		for(int i = 0; i < jRecord.length(); i++) {                                     
 			JSONObject jDev = jRecord.getJSONObject(i);
 			deviceNames.add(jDev.getString("name"));
@@ -316,7 +310,7 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 
 	public void mouseClicked(MouseEvent ev) {
 		// for getting the current JTabbedPane that is active
-		String deviceId = deviceIds.get(cmbs.get(0).getSelectedIndex()).toString();
+		String deviceId = deviceIds.get(cmbDevices.getSelectedIndex()).toString();
 		int selectedIndex = tabbedPane.getSelectedIndex();
 		if(selectedIndex == 0) {
 			// Selected Row in the Non Registerd users in the first JTabbedPane called "Non Registred".
@@ -349,51 +343,60 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 	}
 
 	public void actionPerformed(ActionEvent ev) {
+		String deviceId = deviceIds.get(cmbDevices.getSelectedIndex()).toString();
 		if(ev.getActionCommand().equals("Verify")) {
-			String deviceId = deviceIds.get(cmbs.get(0).getSelectedIndex()).toString();
-
-			JSONArray jEvents = eventLogs.getLogs(deviceId, 30);
-			if(jEvents.length() > 0) {
-				JSONObject jLastEvent = jEvents.getJSONObject(jEvents.length() - 1);
+			if(notVerifiying) {
+				notVerifiying = false;
+				JSONArray jEvents = eventLogs.getLogs(deviceId, 2);
+				
+				photoView.setIcon(null);
+				if(jEvents.length() > 0) {
+					JSONObject jLastEvent = jEvents.getJSONObject(jEvents.length() - 1);
 System.out.println(jLastEvent.toString());
-				if(jLastEvent.has("user")) {
-					String userId = jLastEvent.getJSONObject("user").getString("user_id");
-					String userName = jLastEvent.getJSONObject("user").getString("name");
-					Map<String, String> std = verifyStudent.getStudent(db, userId);
-					if(std.size() == 0) {
-						statusMsg.setText("No students details in database for " + userName);
+					if(jLastEvent.has("user")) {
+						String userId = jLastEvent.getJSONObject("user").getString("user_id");
+						String userName = jLastEvent.getJSONObject("user").getString("name");
+						Map<String, String> std = verifyStudent.getStudent(db, userId);
+						if(std.size() == 0) {
+							statusMsg.setText("No students details in database for " + userName);
+						} else {
+							statusMsg.setText("Found : " + userName);
+							for(String fieldKey : std.keySet())
+								stdFields.get(fieldKey).setText(std.get(fieldKey));
+						}
+						
+						if(imageMgr.ifExists("pp_" + userId + ".png")) {
+							ImageIcon pImage = new ImageIcon(imageMgr.getImage("pp_" + userId + ".png"));
+							Image pnewimg1 = pImage.getImage().getScaledInstance(330, 240, Image.SCALE_SMOOTH);
+							ImageIcon imagePic = new ImageIcon(pnewimg1);
+							photoView.setIcon(imagePic);
+						}
 					} else {
-						statusMsg.setText("Found : " + userName);
-						for(String fieldKey : std.keySet())
-							stdFields.get(fieldKey).setText(std.get(fieldKey));
-					}
-					
-					if(imageMgr.ifExists("pp_" + userId + ".png")) {
-						ImageIcon pImage = new ImageIcon(imageMgr.getImage("pp_" + userId + ".png"));
-						Image pnewimg1 = pImage.getImage().getScaledInstance(330, 240, Image.SCALE_SMOOTH);
-						ImageIcon imagePic = new ImageIcon(pnewimg1);
-						photoView.setIcon(imagePic);
+						statusMsg.setText("Student not registred");
 					}
 				} else {
-					statusMsg.setText("Student not registred");
+					statusMsg.setText("Place finger on the device first");
 				}
-			} else {
-				statusMsg.setText("Place finger on the device first");
+				notVerifiying = true;
 			}
 		} else if(ev.getActionCommand().equals("Logs")) {
-			String deviceId = deviceIds.get(cmbs.get(0).getSelectedIndex()).toString();
-System.out.println("Device ID : " + deviceId);
-
-			JSONArray jEvents = eventLogs.getLogs(deviceId, 30);
+			String startDate = txfs.get(0).getText() + "T00:00:00.00Z";
+			String endDate = txfs.get(1).getText() + "T23:59:00.00Z";
+			JSONArray rLog = eventLogs.getLogs(deviceId, startDate, endDate);
+			logModel.refresh(eventLogs.getRecords(rLog));
+			tableLog.repaint();
+			tableLog.revalidate();
 		} else if(ev.getActionCommand().equals("Search")) {
-			String eventLOG = null;
-			int eventLogName = cmbs.get(1).getSelectedIndex();
-			String deviceId = deviceIds.get(cmbs.get(0).getSelectedIndex()).toString();
-			
-			if(0 != eventLogName) {
-				
-			} else if (0==eventLogName) {
+			int eventLogId = cmbEventNames.getSelectedIndex();
+			if (eventLogId == 0) {
 				JOptionPane.showMessageDialog(null, "You can't Search For None Log Events");
+			} else {
+				String startDate = txfs.get(0).getText() + "T00:00:00.00Z";
+				String endDate = txfs.get(1).getText() + "T23:59:00.00Z";
+				JSONArray rLog = eventLogs.getLogs(eventLogId, deviceId, startDate, endDate);
+				logModel.refresh(eventLogs.getRecords(rLog));
+				tableLog.repaint();
+				tableLog.revalidate();
 			}
 		} else if(ev.getActionCommand().equals("Filter")) {
 			filter();

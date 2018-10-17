@@ -19,10 +19,15 @@ import javax.swing.table.AbstractTableModel;
 
 public class DTableModel extends AbstractTableModel {
 	Logger log = Logger.getLogger(DTableModel.class.getName());
-	
+
 	private Vector<Vector<String>> data;
 	private Vector<String> titles;
-	
+
+	public DTableModel(Vector<String> fields, Vector<Vector<String>> newData) {
+		titles = new Vector<String>(fields);
+		data = new Vector<Vector<String>>(newData);
+	}
+
 	public DTableModel(Map<String, String> fields, Vector<Vector<String>> newData) {
 		titles = new Vector<String>();
 		data = new Vector<Vector<String>>(newData);
@@ -31,7 +36,7 @@ public class DTableModel extends AbstractTableModel {
 		for(String field : fields.keySet())
 			titles.add(fields.get(field));
 	}
-	
+
 	public int getColumnCount() {
 		return titles.size();
 	}
