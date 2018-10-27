@@ -386,9 +386,9 @@ System.out.println("BASE 2010 : " + enResults);
 		
 		jStudent.put("login_id", rowData.get(0));
 		jStudent.put("name", rowData.get(1));
-		jStudent.put("phone_number", rowData.get(3));
-		jStudent.put("email", rowData.get(4));
-		jStudent.put("user_id", rowData.get(2));
+		jStudent.put("phone_number", rowData.get(2));
+		jStudent.put("email", rowData.get(3));
+		jStudent.put("user_id", rowData.get(4));
 		jStudent.put("password", "password");
 		jStudent.put("pin", "");
 		jStudent.put("security_level", "");

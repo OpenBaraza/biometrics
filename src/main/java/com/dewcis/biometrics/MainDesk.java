@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -190,7 +191,7 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 			+ "WHERE (q.active = true) AND (s.telno is not null) AND (s.email is not null) "
 			+ "LIMIT 200";
 
-		fields = new HashMap<String, String>();
+		fields = new LinkedHashMap<String, String>();
 		fields.put("studentid", "Student ID");
 		fields.put("studentname", "Student Name");
 		fields.put("telno", "Tel No");
