@@ -12,8 +12,8 @@ GRANT ALL ON sys_configs TO biometrics;
 
 INSERT INTO sys_configs (config_type_id, config_name, config_value) VALUES
 (0, '1', 'Biometric configurations'),
-(1, 'base_url', 'http://192.168.3.195:8795/v2'),
-(1, 'domain', '192.168.3.195'),
+(1, 'base_url', 'http://192.168.3.10:8795/v2'),
+(1, 'domain', '192.168.3.10'),
 (1, 'api_name', 'admin'),
 (1, 'user_password', 'invent@2018'),
 (1, 'user_name', 'admin'),

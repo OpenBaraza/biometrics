@@ -16,63 +16,66 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
-import java.sql.Connection;
-import java.sql.Statement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class VerifyFingerPrint {
 	Logger log = Logger.getLogger(VerifyFingerPrint.class.getName());
 
-	public String VerifyFingerPrint(Device dev, String template0, String deviceID){
-		String results = dev.usersList();
-		String verificationResults = null;
+	Device dev = null;
+	Map<String, String> fingerPrints;
+	Vector<String> duplicateFP;
+	
+	public VerifyFingerPrint(Device dev) {
+		this.dev = dev;
+		fingerPrints = new HashMap<String, String>();
+		duplicateFP = new Vector<String>();
 
+		String results = dev.usersList();
 		if(results != null) {
 			JSONObject jResults = new JSONObject(results);
 			JSONArray jresponse = jResults.getJSONArray("records");
-
-			while (verificationResults!=null){
-				for(int i=0; i<jresponse.length(); i++) {
-					String user_id = jresponse.getJSONObject(i).getString("user_id");
-					String userFingerDetails = dev.getFingerPrint(user_id);
-					if (userFingerDetails==null) {
-						System.out.println("No user Finger print");
-					}else if (userFingerDetails!=null) {
-						System.out.println("Available user Finger print" + userFingerDetails);
-						JSONObject jFingettemp = new JSONObject(userFingerDetails);
-						String template1 = jFingettemp.getJSONArray("fingerprint_template_list").getJSONObject(0).getString("template0");
-						JSONObject jVerify = new JSONObject();
-						jVerify.put("security_level","DEFAULT");
-						jVerify.put("template0", template0);
-						jVerify.put("template1", template1);
-						String vResults = dev.verifyScan(deviceID, jVerify);
-						if ("Processed Successfully".equals(vResults)) {
-							String userResults = dev.userDetails(user_id);
-						}else if (!"Processed Successfully".equals(vResults)) {
-							String template2 = jFingettemp.getJSONArray("fingerprint_template_list").getJSONObject(1).getString("template0");
-							JSONObject jVerify2 = new JSONObject();
-							jVerify2.put("security_level","DEFAULT");
-							jVerify2.put("template0", template0);
-							jVerify2.put("template1", template2);
-							String vResults2 = dev.verifyScan(deviceID,jVerify2);
-							if ("Processed Successfully".equals(vResults2)) {
-								String userResults = dev.userDetails(user_id);
-							}else if (!"Processed Successfully".equals(vResults2)) {
-								verificationResults = "There user is not in the system";
-								System.out.println(verificationResults);
-							}
-						}
-					}
-
+			for(int i=0; i<jresponse.length(); i++) {
+				String userId = jresponse.getJSONObject(i).getString("user_id");
+				String userFingerDetails = dev.getFingerPrint(userId);
+				if(userFingerDetails != null) {
+					JSONObject jFingetPrint = new JSONObject(userFingerDetails);
+					String template0 = jFingetPrint.getJSONArray("fingerprint_template_list").getJSONObject(0).getString("template0");
+					fingerPrints.put(userId, template0);
 				}
 			}
 		}
-
-		return verificationResults;
+	}
+	
+	public Vector<String> verify(String deviceId) {
+		duplicateFP.clear();
+		for(String userId0 : fingerPrints.keySet()) {
+			String template0 = fingerPrints.get(userId0);
+			for(String userId1 : fingerPrints.keySet()) {
+				if(!userId0.equals(userId1)) {
+					String template1 = fingerPrints.get(userId1);
+					if(verify(deviceId, template0, template1)) {
+						duplicateFP.add(userId0);
+						break;
+					}
+				}
+			}
+		}
+		return duplicateFP;
+	}
+	
+	public boolean verify(String deviceId, String template0, String template1) {
+		JSONObject jVerify = new JSONObject();
+		jVerify.put("security_level","DEFAULT");
+		jVerify.put("template0", template0);
+		jVerify.put("template1", template1);
+		String vResults = dev.verifyScan(deviceId, jVerify);
+		JSONObject jResults = new JSONObject(vResults);
+		
+		boolean duplicate = false;
+		if ("Processed Successfully".equals(vResults)) duplicate = true;
+		
+		return duplicate;
 	}
 	
 }

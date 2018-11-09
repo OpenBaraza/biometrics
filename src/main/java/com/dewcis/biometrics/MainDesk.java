@@ -35,6 +35,7 @@ import javax.swing.JDialog;
 import javax.swing.JTabbedPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JList;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -71,6 +72,9 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 	
 	Vector<String> deviceNames;
 	Vector<Integer> deviceIds;
+	Vector<String> duplicateFP;
+	Vector<String> eventCodeName;
+		
 	Map<String, String> fields;
 	List<String> fieldNames;
 	Map<String, JLabel> stdFields;
@@ -84,9 +88,8 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 	JTextField filterData;
 	JLabel statusMsg, photoView;
 	JComboBox fieldList, filterList;
+	JList listDuplicate;
 	DTableModel logModel, tModel, tNonRegModel, tINModel;
-
-	Vector<String> eventCodeName;
 
 	public MainDesk(Connection db) {
 		super(new BorderLayout());
@@ -94,6 +97,8 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 		
 		deviceNames = new Vector<String>();
 		deviceIds = new Vector<Integer>();
+		duplicateFP = new Vector<String>();
+		
 		btns = new ArrayList<JButton>();
 		txfs = new ArrayList<JTextField>();
 		stdFields = new HashMap<String, JLabel>();
@@ -154,12 +159,16 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 		addField("telno", "Tel No", 10, 50, 120, 20, 300);
 		addField("email", "Email", 400, 50, 120, 20, 300);
 		addButton(studentPanel, "Verify", 800, 100, 90, 25, true);
+		addButton(studentPanel, "Duplicate", 800, 100, 110, 25, true);
 		
 		picPanel = new JPanel(null);
 		photoView = new JLabel();
 		photoView.setBounds(10, 30, 330, 240);
 		picPanel.add(photoView);
 		addPanel(picPanel, "Photo", 10, 180, 350, 300);
+		
+		// Duplicate list
+		listDuplicate = new JList(duplicateFP);
 
 		// Status log panel
 		statusPanel = new JPanel(null);
@@ -293,8 +302,9 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 		studentPanel.add(lbValue);
 	}
 	
-	public void getDeviceList() {	
-		JSONObject jResp = new JSONObject(dev.getDeviceList());
+	public void getDeviceList() {
+		String sResp = dev.getDeviceList();
+		JSONObject jResp = new JSONObject(sResp);
 		JSONArray jRecord = jResp.getJSONArray("records");
 
 		for(int i = 0; i < jRecord.length(); i++) {                                     
@@ -399,6 +409,9 @@ System.out.println(jLastEvent.toString());
 				tableLog.repaint();
 				tableLog.revalidate();
 			}
+		} else if(ev.getActionCommand().equals("Duplicate")) {
+			VerifyFingerPrint vfp = new VerifyFingerPrint(dev);
+			duplicateFP = vfp.verify(deviceId);
 		} else if(ev.getActionCommand().equals("Filter")) {
 			filter();
 		}
@@ -440,5 +453,9 @@ System.out.println(jLastEvent.toString());
 		tINModel.refresh(enrolment.getInActive());
 		tableIN.repaint();
 		tableIN.revalidate();
+	}
+	
+	public void deleteDuplicates() {
+		List<String> sfpd = listDuplicate.getSelectedValuesList();
 	}
 }

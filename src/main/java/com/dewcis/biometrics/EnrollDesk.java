@@ -271,7 +271,18 @@ public class EnrollDesk implements ActionListener {
 			msg.get(0).setText(fpm.get("message"));
 			System.out.println(fpm.get("message"));
 			
-			if(!fpm.containsKey("status_code")) {
+			boolean fpOk = true;
+			if(fpm.containsKey("status_code")) {
+				fpOk = false;
+			} else {
+				JSONObject fpv = fp.verify(tfDevice.getText(), jfingerItem1.getString("template0"), fpm.get("template0"));
+				if(fpm.containsKey("status_code")) {
+					fpOk = false;
+					msg.get(0).setText("Identical finger prints for scan 1 and scan 2");
+				}
+			}
+			
+			if(fpOk) {
 				jfingerItem2.put("is_prepare_for_duress", false);
 				jfingerItem2.put("template0", fpm.get("template0"));
 				jfingerItem2.put("template1", fpm.get("template1"));
