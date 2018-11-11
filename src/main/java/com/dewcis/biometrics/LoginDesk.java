@@ -94,7 +94,7 @@ public class LoginDesk implements ActionListener {
 			} else {
 				frame.remove(imagePanel);
 
-				MainDesk md = new MainDesk(db);
+				MainDesk md = new MainDesk(db, tfUserName.getText(), myPassword);
 				frame.getContentPane().add(md, BorderLayout.CENTER);
 				
 				// Repaint main panel

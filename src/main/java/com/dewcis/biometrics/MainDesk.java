@@ -91,7 +91,7 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 	JList listDuplicate;
 	DTableModel logModel, tModel, tNonRegModel, tINModel;
 
-	public MainDesk(Connection db) {
+	public MainDesk(Connection db, String userName, String passWord) {
 		super(new BorderLayout());
 		this.db = db;
 		
@@ -121,7 +121,7 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 		
 		// Getting details from the config.txt from class base_url
 		cfgs = new Configs(db);
-		dev = new Device(cfgs.getConfigs(), null);
+		dev = new Device(cfgs.getConfigs(), null, userName, passWord);
 		getDeviceList();
 		imageMgr = new ImageManager(dev.getConfigs());
 

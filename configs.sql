@@ -20,3 +20,5 @@ INSERT INTO sys_configs (config_type_id, config_name, config_value) VALUES
 (1, 'webdav_path', 'https://demo.dewcis.com/repository/webdav/ueab/'),
 (1, 'webdav_username', 'repository'),
 (1, 'webdav_password', 'baraza');
+
+

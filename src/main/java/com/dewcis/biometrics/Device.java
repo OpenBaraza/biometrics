@@ -37,22 +37,22 @@ public class Device {
 	String baseUrl = "";
 	String sessionId = null;
 
-	public Device(Map<String, String> cfgs, String sessionId) {
+	public Device(Map<String, String> cfgs, String sessionId, String userName, String passWord) {
 		this.cfgs = cfgs;
 		this.sessionId = sessionId;
-		if(sessionId == null) login();
+		if(sessionId == null) login(userName, passWord);
 	}
 	
 	//Getting sessionid for the logged in user
-	public String login() {
+	public String login(String userName, String passWord) {
 		JSONObject jLogin = new JSONObject();
 		jLogin.put("mobile_app_version", "");
 		jLogin.put("mobile_device_type", "");
 		jLogin.put("mobile_os_version", "");
 		jLogin.put("notification_token", "");
-		jLogin.put("name", cfgs.get("api_name"));
-		jLogin.put("password", cfgs.get("user_password"));
-		jLogin.put("user_id", cfgs.get("user_name"));
+		jLogin.put("name", userName);
+		jLogin.put("user_id", userName);
+		jLogin.put("password", passWord);
 		
 		baseUrl = cfgs.get("base_url");
 		
