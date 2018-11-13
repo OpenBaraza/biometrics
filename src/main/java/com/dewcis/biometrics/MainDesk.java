@@ -83,7 +83,7 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 	JTabbedPane searchPane = new JTabbedPane();
 	
 	JPanel nonRegPanel, regPanel, verifyPanel, acInPanel, logPanel, filterPanel;
-	JPanel devicePanel, searchPanel, studentPanel, picPanel, statusPanel;
+	JPanel devicePanel, searchPanel, studentPanel, picPanel, duplicatePanel, statusPanel;
 	JTable tableReg, tableNon, tableIN,	tableLog;
 	JTextField filterData;
 	JLabel statusMsg, photoView;
@@ -158,8 +158,8 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 		addField("studentname", "Student Name", 400, 20, 120, 20, 300);
 		addField("telno", "Tel No", 10, 50, 120, 20, 300);
 		addField("email", "Email", 400, 50, 120, 20, 300);
-		addButton(studentPanel, "Verify", 800, 100, 90, 25, true);
-		addButton(studentPanel, "Duplicate", 800, 100, 110, 25, true);
+		addButton(studentPanel, "Verify", 10, 100, 100, 25, true);
+		addButton(studentPanel, "Check Duplicate", 700, 100, 150, 25, true);
 		
 		picPanel = new JPanel(null);
 		photoView = new JLabel();
@@ -169,10 +169,13 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 		
 		// Duplicate list
 		listDuplicate = new JList(duplicateFP);
+		duplicatePanel = new JPanel();
+		duplicatePanel.add(listDuplicate);
+		addPanel(duplicatePanel, "Duplicates", 370, 180, 550, 300);
 
 		// Status log panel
 		statusPanel = new JPanel(null);
-		addPanel(statusPanel, "Status", 5, 500, 800, 100);
+		addPanel(statusPanel, "Status", 5, 500, 900, 100);
 		addMessage("Message", 10, 10, 120, 20, 600);
 
 		tabbedPane.addTab("Verify User / Search logs", verifyPanel);
@@ -409,7 +412,7 @@ System.out.println(jLastEvent.toString());
 				tableLog.repaint();
 				tableLog.revalidate();
 			}
-		} else if(ev.getActionCommand().equals("Duplicate")) {
+		} else if(ev.getActionCommand().equals("Check Duplicate")) {
 			VerifyFingerPrint vfp = new VerifyFingerPrint(dev);
 			duplicateFP = vfp.verify(deviceId);
 		} else if(ev.getActionCommand().equals("Filter")) {

@@ -40,8 +40,13 @@ public class VerifyFingerPrint {
 				String userFingerDetails = dev.getFingerPrint(userId);
 				if(userFingerDetails != null) {
 					JSONObject jFingetPrint = new JSONObject(userFingerDetails);
-					String template0 = jFingetPrint.getJSONArray("fingerprint_template_list").getJSONObject(0).getString("template0");
-					fingerPrints.put(userId, template0);
+					if(jFingetPrint.has("fingerprint_template_list")) {
+						JSONArray jFPa = jFingetPrint.getJSONArray("fingerprint_template_list");
+						if(jFPa.length() > 0) {
+							String template0 = jFPa.getJSONObject(0).getString("template0");
+							fingerPrints.put(userId, template0);
+						}
+					}
 				}
 			}
 		}

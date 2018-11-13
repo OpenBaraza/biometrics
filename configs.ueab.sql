@@ -37,6 +37,8 @@ GRANT ALL PRIVILEGES ON students TO biometrics;
 GRANT ALL PRIVILEGES ON studentdegrees TO biometrics;
 GRANT ALL PRIVILEGES ON qstudents TO biometrics;
 GRANT ALL PRIVILEGES ON entitys TO biometrics;
+GRANT ALL PRIVILEGES ON quarters TO biometrics;
+GRANT ALL PRIVILEGES ON studentdegreeview TO biometrics;
 
 
 

@@ -22,3 +22,16 @@ INSERT INTO sys_configs (config_type_id, config_name, config_value) VALUES
 (1, 'webdav_password', 'baraza');
 
 
+--- Add then new users
+CREATE ROLE biometrics NOSUPERUSER INHERIT NOCREATEDB NOCREATEROLE NOREPLICATION;
+CREATE USER admin WITH PASSWORD 'admin747';
+GRANT biometrics TO admin;
+GRANT ALL PRIVILEGES ON sys_configs TO biometrics;
+GRANT ALL PRIVILEGES ON students TO biometrics;
+GRANT ALL PRIVILEGES ON studentdegrees TO biometrics;
+GRANT ALL PRIVILEGES ON qstudents TO biometrics;
+GRANT ALL PRIVILEGES ON entitys TO biometrics;
+GRANT ALL PRIVILEGES ON quarters TO biometrics;
+GRANT ALL PRIVILEGES ON studentdegreeview TO biometrics;
+
+
