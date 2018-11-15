@@ -50,7 +50,7 @@ public class Device {
 		jLogin.put("mobile_device_type", "");
 		jLogin.put("mobile_os_version", "");
 		jLogin.put("notification_token", "");
-		jLogin.put("name", userName);
+		jLogin.put("name", cfgs.get("api_name"));
 		jLogin.put("user_id", userName);
 		jLogin.put("password", passWord);
 		
