@@ -51,6 +51,7 @@ public class Enrolment {
 		
 		fp = new FingerPrint(dev);
 
+System.out.println("BASE 2020 : " + results);
 		if(results != null) {
 			JSONObject jResults = new JSONObject(results);
 			JSONArray jresponse = (JSONArray) jResults.get("records");
