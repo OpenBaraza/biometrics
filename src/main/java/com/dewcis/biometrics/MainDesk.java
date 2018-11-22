@@ -79,8 +79,7 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 	List<String> fieldNames;
 	Map<String, JLabel> stdFields;
 	
-	JTabbedPane tabbedPane = new JTabbedPane();
-	JTabbedPane searchPane = new JTabbedPane();
+	JTabbedPane tabbedPane, searchPane;
 	
 	JPanel nonRegPanel, regPanel, verifyPanel, acInPanel, logPanel, filterPanel;
 	JPanel devicePanel, searchPanel, studentPanel, picPanel, duplicatePanel, statusPanel;
@@ -102,6 +101,10 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 		btns = new ArrayList<JButton>();
 		txfs = new ArrayList<JTextField>();
 		stdFields = new HashMap<String, JLabel>();
+
+		// Tabbed pane
+		tabbedPane = new JTabbedPane();
+		searchPane = new JTabbedPane();
 
 		// Non Registred user panel
 		nonRegPanel = new JPanel(new BorderLayout());
