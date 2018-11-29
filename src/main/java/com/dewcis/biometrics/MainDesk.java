@@ -203,7 +203,7 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 			+ "FROM studentdegreeview s INNER JOIN entitys e ON s.studentid = e.user_name "
 			+ "INNER JOIN qstudents qs ON s.studentdegreeid = qs.studentdegreeid "
 			+ "INNER JOIN quarters q ON qs.quarterid = q.quarterid "
-			+ "WHERE (q.active = true) AND (s.telno is not null) AND (s.email is not null) "
+			+ "WHERE (q.closed = false) AND (s.telno is not null) AND (s.email is not null) "
 			+ "LIMIT 200";
 
 		fields = new LinkedHashMap<String, String>();
@@ -437,7 +437,7 @@ System.out.println(jLastEvent.toString());
 			+ "FROM studentdegreeview s INNER JOIN entitys e ON s.studentid = e.user_name "
 			+ "INNER JOIN qstudents qs ON s.studentdegreeid = qs.studentdegreeid "
 			+ "INNER JOIN quarters q ON qs.quarterid = q.quarterid "
-			+ "WHERE (q.active = true) AND (s.telno is not null) AND (s.email is not null) "
+			+ "WHERE (q.closed = false) AND (s.telno is not null) AND (s.email is not null) "
 			+ whereSql
 			+ " LIMIT 200";
 
