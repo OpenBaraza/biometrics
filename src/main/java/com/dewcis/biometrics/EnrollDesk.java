@@ -232,6 +232,16 @@ public class EnrollDesk implements ActionListener {
 
 			if(jResults.has("status_code")) {
 				if(jResults.getString("status_code").equals("CREATED")) {
+					try {
+						String updSql = "UPDATE students SET has_biometrics  = true, biometrics_active = true "
+							+ "WHERE (studentid = '" + jStudent.get("login_id") + "')";
+						Statement stUP = db.createStatement();
+						stUP.executeUpdate(updSql);
+						stUP.close();
+					} catch (SQLException ex) {
+						log.severe("Database SQL Error : " + ex);
+					}
+					
 					//Enabling buttons and disabling
 					btns.get(0).setEnabled(false);
 					btns.get(1).setEnabled(true);
@@ -381,15 +391,6 @@ System.out.println("BASE 2010 : " + enResults);
 			    btns.get(6).requestFocus();
 			}
 		} else if(ev.getActionCommand().equals("Close")) {
-			try {
-				String updSql = "UPDATE students SET has_biometrics  = true, biometrics_active = true "
-					+ "WHERE (studentid = '" + jStudent.get("login_id") + "')";
-				Statement stUP = db.createStatement();
-				stUP.executeUpdate(updSql);
-				stUP.close();
-			} catch (SQLException ex) {
-				log.severe("Database SQL Error : " + ex);
-			}
 			eDialog.dispose();
 		} else if(ev.getActionCommand().equals("Delete")) {
 			String msg = "Are yuo sure you want delete the created record you have created?";
@@ -397,6 +398,17 @@ System.out.println("BASE 2010 : " + enResults);
 			if(dialogResult == JOptionPane.YES_OPTION) {
 				String enResults = dev.delUser(jStudent.getString("user_id"));
 System.out.println("BASE 2010 : " + enResults);
+
+				try {
+					String updSql = "UPDATE students SET has_biometrics  = false, biometrics_active = false "
+						+ "WHERE (studentid = '" + jStudent.get("login_id") + "')";
+					Statement stUP = db.createStatement();
+					stUP.executeUpdate(updSql);
+					stUP.close();
+				} catch (SQLException ex) {
+					log.severe("Database SQL Error : " + ex);
+				}
+
 				eDialog.dispose();
 			}
 		}

@@ -333,6 +333,7 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 	public void mouseClicked(MouseEvent ev) {
 		// for getting the current JTabbedPane that is active
 		String deviceId = deviceIds.get(cmbDevices.getSelectedIndex()).toString();
+		//String deviceId = "1234";
 		int selectedIndex = tabbedPane.getSelectedIndex();
 		if(selectedIndex == 0) {
 			// Selected Row in the Non Registerd users in the first JTabbedPane called "Non Registred".
