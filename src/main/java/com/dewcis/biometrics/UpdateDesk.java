@@ -1,12 +1,15 @@
 package com.dewcis.biometrics;
 
-import java.sql.Connection;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Vector;
 import java.util.logging.Logger;
+
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.SQLException;
 
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
@@ -65,8 +68,9 @@ public class UpdateDesk implements ActionListener {
 
 	ImageManager imageMgr = null;
 
-	public UpdateDesk(Vector<String> titles, Vector<String> rowData, Device dev, String deviceId) {
+	public UpdateDesk(Vector<String> titles, Vector<String> rowData, Device dev, String deviceId, Connection db) {
 		this.dev = dev;
+		this.db = db;
 		
 		imageMgr = new ImageManager(dev.getConfigs());
 
@@ -372,6 +376,16 @@ System.out.println("BASE 2010 : " + enResults);
 			
 			btns.get(3).setEnabled(false);
 			btns.get(6).setEnabled(false);
+			
+			try {
+				String updSql = "UPDATE students SET biometrics_active = false "
+					+ "WHERE (studentid = '" + jStudent.get("login_id") + "')";
+				Statement stUP = db.createStatement();
+				stUP.executeUpdate(updSql);
+				stUP.close();
+			} catch (SQLException ex) {
+				log.severe("Database SQL Error : " + ex);
+			}
 		} else if(ev.getActionCommand().equals("Close")) {
 			eDialog.dispose();
 		}

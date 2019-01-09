@@ -58,6 +58,7 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 	Connection db = null;
 	String mySql = "";
 
+	StudentList studentList = null;
 	Enrolment enrolment = null;
 	Configs cfgs = null;
 	Device dev = null;
@@ -200,11 +201,11 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 	
 	public void getStudents() {
 		mySql = "SELECT s.studentid, s.studentname, s.telno, s.email, e.entity_id "
-			+ "FROM studentdegreeview s INNER JOIN entitys e ON s.studentid = e.user_name "
-			+ "INNER JOIN qstudents qs ON s.studentdegreeid = qs.studentdegreeid "
+			+ "FROM students s INNER JOIN entitys e ON s.studentid = e.user_name "
+			+ "INNER JOIN studentdegrees sd ON s.studentid = sd.studentid "
+			+ "INNER JOIN qstudents qs ON sd.studentdegreeid = qs.studentdegreeid "
 			+ "INNER JOIN quarters q ON qs.quarterid = q.quarterid "
-			+ "WHERE (q.closed = false) AND (s.telno is not null) AND (s.email is not null) "
-			+ "LIMIT 200";
+			+ "WHERE (q.closed = false) AND (s.telno is not null) AND (s.email is not null)";
 
 		fields = new LinkedHashMap<String, String>();
 		fields.put("studentid", "Student ID");
@@ -213,28 +214,32 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 		fields.put("email", "EMail");
 		fields.put("entity_id", "Entity ID");
 		fieldNames = new ArrayList<String>(fields.keySet());
+		
+		// Get students
+		studentList = new StudentList(db, mySql, fields);
         
-        // Get device and registered list
+		// Get device and registered list
 		enrolment = new Enrolment();
 		enrolment.usersList(dev, false);
-		enrolment.getStudents(db, mySql, fields);
+		enrolment.getStudents(db, mySql + " AND (s.has_biometrics = false)", fields);
+		enrolment.updateRegistred(db);
         
 		//Creating table for Non Registered students.
-		tNonRegModel = new DTableModel(fields, enrolment.getUnRegistred());
+		tNonRegModel = new DTableModel(fields, studentList.getUnRegistred(""));
 		tableNon = new JTable(tNonRegModel);
 		tableNon.addMouseListener(this);
 		JScrollPane scrollPane = new JScrollPane(tableNon);
 		nonRegPanel.add(scrollPane, BorderLayout.CENTER);
 		
 		//Creating table for Registered students
-		tModel = new DTableModel(fields, enrolment.getRegistred());
+		tModel = new DTableModel(fields, studentList.getRegistred(""));
 		tableReg = new JTable(tModel);
 		tableReg.addMouseListener(this);
 		JScrollPane scrollPanereg = new JScrollPane(tableReg);
 		regPanel.add(scrollPanereg, BorderLayout.CENTER);
 
 		//Creating table for Inactive students
-		tINModel = new DTableModel(fields, enrolment.getInActive());
+		tINModel = new DTableModel(fields, studentList.getInActive(""));
 		tableIN = new JTable(tINModel);
 		tableIN.addMouseListener(this);
 		JScrollPane scrollPaneInAc = new JScrollPane(tableIN);
@@ -334,7 +339,7 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 			int bRow = tableNon.getSelectedRow();
 			if ((bRow != -1) && (ev.getClickCount() == 2)) {
 				int index = tableNon.convertRowIndexToModel(bRow);
-				EnrollDesk eDesk = new EnrollDesk(tNonRegModel.getTitles(), tNonRegModel.getRowValues(index), dev, deviceId);
+				EnrollDesk eDesk = new EnrollDesk(tNonRegModel.getTitles(), tNonRegModel.getRowValues(index), dev, deviceId, db);
 				filter();		// Filter
 			}
 		} else if(selectedIndex == 1) {
@@ -342,7 +347,7 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 			int aRow = tableReg.getSelectedRow();
 			if ((aRow != -1) && (ev.getClickCount() == 2)) {
 				int index = tableReg.convertRowIndexToModel(aRow);
-				UpdateDesk uDesk = new UpdateDesk(tModel.getTitles(), tModel.getRowValues(index), dev, deviceId);
+				UpdateDesk uDesk = new UpdateDesk(tModel.getTitles(), tModel.getRowValues(index), dev, deviceId, db);
 				filter();		// Filter
 			}
 		} else if(selectedIndex == 2) {
@@ -353,7 +358,7 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 				Vector<String> rowData = tINModel.getRowValues(index);
 				String user_id = rowData.get(2);
 				String userResults = dev.userDetails(user_id);
-				ActivateDesk aDesk = new ActivateDesk(tINModel.getTitles(), userResults, dev);
+				ActivateDesk aDesk = new ActivateDesk(tINModel.getTitles(), userResults, dev, db);
 				filter();		// Filter
 			}
 		}
@@ -433,30 +438,19 @@ System.out.println(jLastEvent.toString());
 			else whereSql += " '" + filterData.getText() + "'";
 		}
 		
-		mySql = "SELECT s.studentid, s.studentname, s.telno, s.email, e.entity_id "
-			+ "FROM studentdegreeview s INNER JOIN entitys e ON s.studentid = e.user_name "
-			+ "INNER JOIN qstudents qs ON s.studentdegreeid = qs.studentdegreeid "
-			+ "INNER JOIN quarters q ON qs.quarterid = q.quarterid "
-			+ "WHERE (q.closed = false) AND (s.telno is not null) AND (s.email is not null) "
-			+ whereSql
-			+ " LIMIT 200";
-
-		refresh();
+		refresh(whereSql);
 	}
 
-	public void refresh() {
-		enrolment.getStudents(db, mySql, fields);
-		enrolment.usersList(dev, false);
-		
-		tNonRegModel.refresh(enrolment.getUnRegistred());
+	public void refresh(String whereSql) {
+		tNonRegModel.refresh(studentList.getUnRegistred(whereSql));
 		tableNon.repaint();
 		tableNon.revalidate();
 		
-		tModel.refresh(enrolment.getRegistred());
+		tModel.refresh(studentList.getRegistred(whereSql));
 		tableReg.repaint();
 		tableReg.revalidate();
 
-		tINModel.refresh(enrolment.getInActive());
+		tINModel.refresh(studentList.getInActive(whereSql));
 		tableIN.repaint();
 		tableIN.revalidate();
 	}

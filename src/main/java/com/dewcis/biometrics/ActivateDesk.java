@@ -1,7 +1,5 @@
 package com.dewcis.biometrics;
 
-import java.sql.Connection;
-
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -9,6 +7,9 @@ import java.util.HashMap;
 import java.util.Vector;
 import java.util.logging.Logger;
 
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.SQLException;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -47,8 +48,9 @@ public class ActivateDesk implements ActionListener {
 	
 	ImageManager imageMgr = null;
 
-	public ActivateDesk(Vector<String> titles,String student, Device dev) {
+	public ActivateDesk(Vector<String> titles,String student, Device dev, Connection db) {
 		this.dev = dev;
+		this.db = db;
 		
 		imageMgr = new ImageManager(dev.getConfigs());
 		
@@ -180,7 +182,16 @@ public class ActivateDesk implements ActionListener {
 			dev.acinUser(jStudent.getString("user_id"), jStudent);
 			btns.get(0).setEnabled(false);
 			
-		}		
+			try {
+				String updSql = "UPDATE students SET biometrics_active = true "
+					+ "WHERE (studentid = '" + jStudent.get("login_id") + "')";
+				Statement stUP = db.createStatement();
+				stUP.executeUpdate(updSql);
+				stUP.close();
+			} catch (SQLException ex) {
+				log.severe("Database SQL Error : " + ex);
+			}
+		}
 	}
     
 }

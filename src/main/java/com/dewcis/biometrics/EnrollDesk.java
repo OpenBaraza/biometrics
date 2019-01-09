@@ -1,6 +1,5 @@
 package com.dewcis.biometrics;
 
-import java.sql.Connection;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.List;
@@ -8,6 +7,10 @@ import java.util.ArrayList;
 import java.util.Vector;
 import java.util.logging.Logger;
 import java.net.MalformedURLException;
+
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.SQLException;
 
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
@@ -71,9 +74,10 @@ public class EnrollDesk implements ActionListener {
 	Image fimage1 = null;
 	Image fNewimg1 = null;
 
-	public EnrollDesk(Vector<String> titles, Vector<String> rowData, Device dev, String deviceId) {
+	public EnrollDesk(Vector<String> titles, Vector<String> rowData, Device dev, String deviceId, Connection db) {
 		this.dev = dev;
-
+		this.db = db;
+		
 		imageMgr = new ImageManager(dev.getConfigs());
 		fImage1 = new ImageIcon(imageMgr.getImage("ftemplate1.png"));
 		fimage1 = fImage1.getImage();
@@ -377,6 +381,15 @@ System.out.println("BASE 2010 : " + enResults);
 			    btns.get(6).requestFocus();
 			}
 		} else if(ev.getActionCommand().equals("Close")) {
+			try {
+				String updSql = "UPDATE students SET has_biometrics  = true, biometrics_active = true "
+					+ "WHERE (studentid = '" + jStudent.get("login_id") + "')";
+				Statement stUP = db.createStatement();
+				stUP.executeUpdate(updSql);
+				stUP.close();
+			} catch (SQLException ex) {
+				log.severe("Database SQL Error : " + ex);
+			}
 			eDialog.dispose();
 		} else if(ev.getActionCommand().equals("Delete")) {
 			String msg = "Are yuo sure you want delete the created record you have created?";

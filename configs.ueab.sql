@@ -30,8 +30,12 @@ INSERT INTO sys_configs (config_type_id, config_name, config_value) VALUES
 CREATE ROLE biometrics NOSUPERUSER INHERIT NOCREATEDB NOCREATEROLE NOREPLICATION;
 CREATE USER bio1 WITH PASSWORD 'Pass:bio1';
 CREATE USER bio2 WITH PASSWORD 'Pass:bio2';
+CREATE USER bio3 WITH PASSWORD 'Pass:bio3';
+CREATE USER bio4 WITH PASSWORD 'Pass:bio4';
 GRANT biometrics TO bio1;
 GRANT biometrics TO bio2;
+GRANT biometrics TO bio3;
+GRANT biometrics TO bio4;
 GRANT ALL PRIVILEGES ON sys_configs TO biometrics;
 GRANT ALL PRIVILEGES ON students TO biometrics;
 GRANT ALL PRIVILEGES ON studentdegrees TO biometrics;

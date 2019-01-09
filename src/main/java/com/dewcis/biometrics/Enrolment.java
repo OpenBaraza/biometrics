@@ -83,7 +83,23 @@ public class Enrolment {
 				students.put(rs.getString("entity_id"), row);
 			}
 		} catch (SQLException ex) {
-			log.severe("Database connection SQL Error : " + ex);
+			log.severe("Database SQL Error : " + ex);
+		}
+	}
+	
+	public void updateRegistred(Connection db) {
+		try {
+			for(String key : students.keySet()) {
+				if(enrolledActive.contains(key)) {
+					String updSql = "UPDATE students SET has_biometrics  = true, biometrics_active = true "
+						+ "WHERE (studentid = '" + students.get(key).get(0) + "')";
+					Statement stUP = db.createStatement();
+					stUP.executeUpdate(updSql);
+					stUP.close();
+				}
+			}
+		} catch (SQLException ex) {
+			log.severe("Database SQL Error : " + ex);
 		}
 	}
 	
