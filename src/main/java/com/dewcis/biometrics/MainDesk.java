@@ -366,7 +366,8 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 	}
 
 	public void actionPerformed(ActionEvent ev) {
-		String deviceId = deviceIds.get(cmbDevices.getSelectedIndex()).toString();
+		String deviceId = "";
+		if(cmbDevices.getSelectedIndex() > -1) deviceId = deviceIds.get(cmbDevices.getSelectedIndex()).toString();
 		if(ev.getActionCommand().equals("Verify")) {
 			if(notVerifiying) {
 				notVerifiying = false;
@@ -430,7 +431,10 @@ System.out.println(jLastEvent.toString());
 	}
 	
 	public void filter() {
-		String whereSql = " AND " + fieldNames.get(fieldList.getSelectedIndex());
+		String whereSql = " AND ";
+		if(fieldList.getSelectedIndex() == 4) whereSql += "e." + fieldNames.get(fieldList.getSelectedIndex());
+		else whereSql += "s." + fieldNames.get(fieldList.getSelectedIndex());
+
 		if(filterData.getText().trim().equals("")) {
 			whereSql = "";
 		} else {
