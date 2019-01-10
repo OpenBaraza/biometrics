@@ -205,7 +205,7 @@ public class MainDesk extends JPanel implements MouseListener , ActionListener{
 			+ "INNER JOIN studentdegrees sd ON s.studentid = sd.studentid "
 			+ "INNER JOIN qstudents qs ON sd.studentdegreeid = qs.studentdegreeid "
 			+ "INNER JOIN quarters q ON qs.quarterid = q.quarterid "
-			+ "WHERE (q.closed = false) AND (s.telno is not null) AND (s.email is not null)";
+			+ "WHERE (q.active = true) AND (s.telno is not null) AND (s.email is not null)";
 
 		fields = new LinkedHashMap<String, String>();
 		fields.put("studentid", "Student ID");
