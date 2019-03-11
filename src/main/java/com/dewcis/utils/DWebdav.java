@@ -32,11 +32,7 @@ public class DWebdav {
 		if((path == null) || (userName == null)) return;
 		basePath = path;
 		try {
-			sardine = SardineFactory.begin(userName, passWord);		
-			List<DavResource> resources = sardine.list(basePath);
-		} catch(IOException ex) {
-			sardine = null;
-			log.severe("File list error : " + ex);
+			sardine = SardineFactory.begin(userName, passWord);
 		} catch(Exception ex) {
 			sardine = null;
 			log.severe("webdav error : " + ex);
